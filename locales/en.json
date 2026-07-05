@@ -1,0 +1,45 @@
+{
+  "nav": { "title": "Nest List", "home": "Home", "trash": "Trash" },
+  "common": { "darkMode": "Dark mode", "lightMode": "Light mode", "cancel": "Cancel" },
+  "footer": { "copyright": "© {year} Nest List" },
+  "trash": {
+    "heading": "Deleted items",
+    "empty": "No deleted items.",
+    "restore": "Restore",
+    "listDeleted": "list deleted"
+  },
+  "pwa": { "updateAvailable": "An update is available.", "reload": "Reload" },
+  "lists": {
+    "heading": "My lists",
+    "newPlaceholder": "New list",
+    "add": "Add",
+    "empty": "No lists yet.",
+    "allTags": "All",
+    "noneForTag": "No lists for this tag."
+  },
+  "list": {
+    "untitled": "Untitled",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "tagsLabel": "Tags",
+    "tagsPlaceholder": "Add a tag…",
+    "back": "Back",
+    "delete": "Delete",
+    "notFound": "List not found.",
+    "titleLabel": "Title",
+    "titleRequired": "Title is required.",
+    "titleDuplicate": "This name already exists.",
+    "deleteConfirmTitle": "Delete list",
+    "deleteConfirmMessage": "Delete this list? This action cannot be undone.",
+    "itemsLabel": "Items",
+    "itemPlaceholder": "Item…",
+    "addItem": "Add item",
+    "removeItem": "Remove item",
+    "reorder": "Move item",
+    "dragMode": "Reorder items",
+    "checkAll": "Check all",
+    "clearChecked": "Clear checked",
+    "createdAt": "Created",
+    "updatedAt": "Updated"
+  }
+}

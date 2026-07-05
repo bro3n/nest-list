@@ -1,0 +1,41 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* Per-tag colors: hue is provided inline via the --tag-h custom property.
+   Fixed saturation/lightness keep every tag readable in light and dark. */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  background: hsl(var(--tag-h) 70% 90%);
+  color: hsl(var(--tag-h) 55% 28%);
+  border: 1px solid hsl(var(--tag-h) 60% 80%);
+}
+
+.tag-chip--clickable {
+  cursor: pointer;
+}
+
+.tag-chip--active {
+  outline: 2px solid hsl(var(--tag-h) 60% 45%);
+  outline-offset: 1px;
+}
+
+.dark .tag-chip {
+  background: hsl(var(--tag-h) 35% 25%);
+  color: hsl(var(--tag-h) 85% 85%);
+  border-color: hsl(var(--tag-h) 35% 40%);
+}
+
+.dark .tag-chip--active {
+  outline-color: hsl(var(--tag-h) 70% 70%);
+}
+
+/* SortableJS placeholder while dragging a checklist item. */
+.sortable-ghost {
+  opacity: 0.4;
+}

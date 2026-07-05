@@ -1,0 +1,45 @@
+{
+  "nav": { "title": "Nest List", "home": "Accueil", "trash": "Corbeille" },
+  "common": { "darkMode": "Mode sombre", "lightMode": "Mode clair", "cancel": "Annuler" },
+  "footer": { "copyright": "© {year} Nest List" },
+  "trash": {
+    "heading": "Éléments supprimés",
+    "empty": "Aucun élément supprimé.",
+    "restore": "Remettre",
+    "listDeleted": "liste supprimée"
+  },
+  "pwa": { "updateAvailable": "Une mise à jour est disponible.", "reload": "Recharger" },
+  "lists": {
+    "heading": "Mes listes",
+    "newPlaceholder": "Nouvelle liste",
+    "add": "Ajouter",
+    "empty": "Aucune liste pour l'instant.",
+    "allTags": "Tous",
+    "noneForTag": "Aucune liste pour ce tag."
+  },
+  "list": {
+    "untitled": "Sans titre",
+    "pin": "Épingler",
+    "unpin": "Désépingler",
+    "tagsLabel": "Tags",
+    "tagsPlaceholder": "Ajouter un tag…",
+    "back": "Retour",
+    "delete": "Supprimer",
+    "notFound": "Liste introuvable.",
+    "titleLabel": "Titre",
+    "titleRequired": "Le titre est obligatoire.",
+    "titleDuplicate": "Ce nom existe déjà.",
+    "deleteConfirmTitle": "Supprimer la liste",
+    "deleteConfirmMessage": "Supprimer cette liste ? Cette action est irréversible.",
+    "itemsLabel": "Éléments",
+    "itemPlaceholder": "Élément…",
+    "addItem": "Ajouter un élément",
+    "removeItem": "Supprimer l'élément",
+    "reorder": "Déplacer l'élément",
+    "dragMode": "Réorganiser les éléments",
+    "checkAll": "Tout cocher",
+    "clearChecked": "Nettoyer les cochés",
+    "createdAt": "Créée le",
+    "updatedAt": "Modifiée le"
+  }
+}

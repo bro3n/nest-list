@@ -1,0 +1,45 @@
+{
+  "nav": { "title": "Nest List", "home": "首页", "trash": "回收站" },
+  "common": { "darkMode": "深色模式", "lightMode": "浅色模式", "cancel": "取消" },
+  "footer": { "copyright": "© {year} Nest List" },
+  "trash": {
+    "heading": "已删除的项目",
+    "empty": "没有已删除的项目。",
+    "restore": "恢复",
+    "listDeleted": "清单已删除"
+  },
+  "pwa": { "updateAvailable": "有可用更新。", "reload": "重新加载" },
+  "lists": {
+    "heading": "我的清单",
+    "newPlaceholder": "新建清单",
+    "add": "添加",
+    "empty": "暂无清单。",
+    "allTags": "全部",
+    "noneForTag": "该标签下暂无清单。"
+  },
+  "list": {
+    "untitled": "无标题",
+    "pin": "置顶",
+    "unpin": "取消置顶",
+    "tagsLabel": "标签",
+    "tagsPlaceholder": "添加标签…",
+    "back": "返回",
+    "delete": "删除",
+    "notFound": "未找到清单。",
+    "titleLabel": "标题",
+    "titleRequired": "标题为必填项。",
+    "titleDuplicate": "该名称已存在。",
+    "deleteConfirmTitle": "删除清单",
+    "deleteConfirmMessage": "删除此清单？此操作无法撤销。",
+    "itemsLabel": "项目",
+    "itemPlaceholder": "项目…",
+    "addItem": "添加项目",
+    "removeItem": "删除项目",
+    "reorder": "移动项目",
+    "dragMode": "重新排序项目",
+    "checkAll": "全部勾选",
+    "clearChecked": "清除已勾选",
+    "createdAt": "创建于",
+    "updatedAt": "更新于"
+  }
+}
