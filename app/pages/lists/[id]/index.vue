@@ -189,10 +189,12 @@ const onDelete = () => {
         icon="i-heroicons-arrow-left"
         color="neutral"
         variant="ghost"
-        :label="$t('list.back')"
+        :aria-label="$t('list.back')"
         @click="router.push('/')"
-      />
-      <div class="flex items-center gap-3">
+      >
+        <span class="hidden sm:inline">{{ $t("list.back") }}</span>
+      </UButton>
+      <div class="flex items-center gap-2 sm:gap-3">
         <USwitch
           v-model="checkMode"
           checked-icon="i-heroicons-check"
@@ -205,17 +207,21 @@ const onDelete = () => {
           icon="i-heroicons-archive-box"
           color="neutral"
           variant="ghost"
-          :label="$t('nav.trash')"
+          :aria-label="$t('nav.trash')"
           @click="router.push(`/lists/${listId}/trash`)"
-        />
+        >
+          <span class="hidden sm:inline">{{ $t("nav.trash") }}</span>
+        </UButton>
         <UButton
           v-if="listId"
           icon="i-heroicons-trash"
           color="error"
           variant="ghost"
-          :label="$t('list.delete')"
+          :aria-label="$t('list.delete')"
           @click="showDeleteConfirm = true"
-        />
+        >
+          <span class="hidden sm:inline">{{ $t("list.delete") }}</span>
+        </UButton>
       </div>
     </div>
 

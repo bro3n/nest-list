@@ -22,7 +22,7 @@ const visibleLists = computed(() =>
     <div v-if="allTags.length" class="mb-4 flex flex-wrap items-center gap-2">
       <button
         type="button"
-        class="rounded-full px-3.5 py-1.5 text-base font-medium transition"
+        class="rounded-full px-3 py-1 text-sm font-medium transition"
         :class="
           activeTag === null
             ? 'bg-slate-800 text-white dark:bg-white dark:text-slate-900'

@@ -33,7 +33,7 @@ useHead({
 
 <template>
   <div
-    class="flex min-h-screen flex-col bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-white"
+    class="flex min-h-dvh flex-col bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-white"
   >
     <header class="border-b border-slate-400 dark:border-slate-800">
       <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-3">
