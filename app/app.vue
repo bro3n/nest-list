@@ -33,9 +33,9 @@ useHead({
 
 <template>
   <div
-    class="flex min-h-screen flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white"
+    class="flex min-h-screen flex-col bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-white"
   >
-    <header class="border-b border-slate-200 dark:border-slate-800">
+    <header class="border-b border-slate-400 dark:border-slate-800">
       <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-3">
         <NuxtLink to="/" class="text-lg font-bold">
           {{ $t("nav.title") }}
@@ -76,7 +76,7 @@ useHead({
       <NuxtPage />
     </main>
 
-    <footer class="mt-auto border-t border-slate-200 dark:border-slate-800">
+    <footer class="mt-auto border-t border-slate-400 dark:border-slate-800">
       <div class="mx-auto w-full max-w-5xl px-4 py-4 text-center text-sm text-slate-500">
         {{ $t("footer.copyright", { year }) }}
       </div>

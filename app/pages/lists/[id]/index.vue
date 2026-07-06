@@ -58,6 +58,13 @@ const checkAll = () => {
 // Drag-and-drop reordering (touch + mouse) via SortableJS.
 // Off by default: rows show checkboxes; toggling on shows drag handles instead.
 const dragMode = ref(false);
+// Switch is driven by check mode so its lit (colored) state is the default one.
+const checkMode = computed({
+  get: () => !dragMode.value,
+  set: (value) => {
+    dragMode.value = !value;
+  },
+});
 const listEl = ref<HTMLElement | null>(null);
 let sortable: Sortable | null = null;
 
@@ -187,9 +194,10 @@ const onDelete = () => {
       />
       <div class="flex items-center gap-3">
         <USwitch
-          v-model="dragMode"
-          checked-icon="i-heroicons-arrows-up-down"
-          unchecked-icon="i-heroicons-check"
+          v-model="checkMode"
+          checked-icon="i-heroicons-check"
+          unchecked-icon="i-heroicons-arrows-up-down"
+          :ui="{ base: 'data-[state=unchecked]:bg-blue-500' }"
           :aria-label="$t('list.dragMode')"
         />
         <UButton
@@ -235,20 +243,6 @@ const onDelete = () => {
             class="flex items-center gap-2"
             :class="item.text ? 'drag-item' : 'drag-empty'"
           >
-            <span
-              v-if="item.text && dragMode"
-              class="drag-handle flex cursor-grab touch-none text-slate-400 active:cursor-grabbing"
-              :aria-label="$t('list.reorder')"
-            >
-              <UIcon name="i-heroicons-bars-2" class="size-5" />
-            </span>
-            <UCheckbox v-if="item.text && !dragMode" v-model="item.checked" size="xl" />
-            <UInput
-              v-model="item.text"
-              :placeholder="$t('list.itemPlaceholder')"
-              class="flex-1"
-              :ui="{ base: item.checked ? 'line-through text-slate-400 dark:text-slate-500' : '' }"
-            />
             <UButton
               v-if="item.text"
               icon="i-heroicons-x-mark"
@@ -257,6 +251,20 @@ const onDelete = () => {
               :aria-label="$t('list.removeItem')"
               @click="removeItem(item.id)"
             />
+            <UInput
+              v-model="item.text"
+              :placeholder="$t('list.itemPlaceholder')"
+              class="flex-1"
+              :ui="{ base: item.checked ? 'line-through text-slate-400 dark:text-slate-500' : '' }"
+            />
+            <span
+              v-if="item.text && dragMode"
+              class="drag-handle flex cursor-grab touch-none text-slate-400 active:cursor-grabbing"
+              :aria-label="$t('list.reorder')"
+            >
+              <UIcon name="i-heroicons-bars-2" class="size-5" />
+            </span>
+            <UCheckbox v-if="item.text && !dragMode" v-model="item.checked" size="xl" />
           </div>
         </div>
 

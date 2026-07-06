@@ -22,7 +22,7 @@ const visibleLists = computed(() =>
     <div v-if="allTags.length" class="mb-4 flex flex-wrap items-center gap-2">
       <button
         type="button"
-        class="rounded-full px-2.5 py-0.5 text-xs font-medium transition"
+        class="rounded-full px-3.5 py-1.5 text-base font-medium transition"
         :class="
           activeTag === null
             ? 'bg-slate-800 text-white dark:bg-white dark:text-slate-900'
@@ -53,7 +53,7 @@ const visibleLists = computed(() =>
       <li
         v-for="list in visibleLists"
         :key="list.id"
-        class="flex items-center gap-1 rounded-lg border border-slate-200 bg-white pr-3 transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+        class="flex items-center gap-1 rounded-lg border border-slate-400 bg-white pr-3 transition hover:border-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
       >
         <UButton
           :icon="list.featured ? 'i-heroicons-star-solid' : 'i-heroicons-star'"

@@ -1,15 +1,25 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+/* Scale the whole UI up: rem-based sizes (text, spacing, icons, components) grow with this. */
+html {
+  font-size: 125%;
+}
+
+/* Darken component borders (inputs, checkboxes, selects…) in light mode only. */
+:root:not(.dark) {
+  --ui-border-accented: var(--ui-color-neutral-400);
+}
+
 /* Per-tag colors: hue is provided inline via the --tag-h custom property.
    Fixed saturation/lightness keep every tag readable in light and dark. */
 .tag-chip {
   display: inline-flex;
   align-items: center;
   border-radius: 9999px;
-  padding: 0.125rem 0.5rem;
-  font-size: 0.75rem;
-  line-height: 1rem;
+  padding: 0.375rem 0.875rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
   font-weight: 500;
   background: hsl(var(--tag-h) 70% 90%);
   color: hsl(var(--tag-h) 55% 28%);

@@ -49,7 +49,7 @@ const restore = (entry: DeletedItem) => {
         <li
           v-for="entry in entries"
           :key="entry.id"
-          class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900"
+          class="flex items-center justify-between gap-3 rounded-lg border border-slate-400 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900"
         >
           <div class="min-w-0">
             <p class="truncate font-medium">{{ entry.text }}</p>
