@@ -82,21 +82,29 @@ const applyDragOrder = () => {
   items.value = [...reordered, ...trailing];
 };
 
-onMounted(() => {
-  if (!listEl.value) return;
+const createSortable = () => {
+  if (sortable || !listEl.value) return;
   sortable = Sortable.create(listEl.value, {
     handle: ".drag-handle",
     draggable: ".drag-item",
     animation: 150,
-    disabled: !dragMode.value,
     // Never let a row cross the trailing empty row.
     onMove: (event) => !event.related?.classList.contains("drag-empty"),
     onEnd: applyDragOrder,
   });
-});
-onBeforeUnmount(() => sortable?.destroy());
+};
+const destroySortable = () => {
+  sortable?.destroy();
+  sortable = null;
+};
 
-watch(dragMode, (enabled) => sortable?.option("disabled", !enabled));
+// Attach SortableJS only in drag mode: while typing (checkbox mode) it would
+// fight Vue's DOM patching and steal focus / close the mobile keyboard.
+watch(dragMode, (enabled) => {
+  if (enabled) nextTick(createSortable);
+  else destroySortable();
+});
+onBeforeUnmount(destroySortable);
 
 const list = computed(() => (listId.value ? getList(listId.value) : undefined));
 
@@ -270,7 +278,7 @@ const onDelete = () => {
             >
               <UIcon name="i-heroicons-bars-2" class="size-5" />
             </span>
-            <UCheckbox v-if="item.text && !dragMode" v-model="item.checked" size="xl" />
+            <UCheckbox v-show="item.text && !dragMode" v-model="item.checked" size="xl" />
           </div>
         </div>
 
