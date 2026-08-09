@@ -11,6 +11,11 @@ export const sendOtpEmail = async (event: H3Event, email: string, code: string):
   }
   if (!hasRealKey) return;
 
+  if (!EMAIL_FROM) {
+    console.error("[auth] EMAIL_FROM is not set — refusing to fall back to the Resend sandbox sender");
+    throw createError({ statusCode: 500, statusMessage: "email_from_missing" });
+  }
+
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -18,7 +23,7 @@ export const sendOtpEmail = async (event: H3Event, email: string, code: string):
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: EMAIL_FROM || "onboarding@resend.dev",
+      from: EMAIL_FROM,
       to: email,
       subject: `Nest List — ${code}`,
       text: `Your Nest List sign-in code is ${code}. It expires in 10 minutes.`,
@@ -26,6 +31,8 @@ export const sendOtpEmail = async (event: H3Event, email: string, code: string):
   });
 
   if (!res.ok) {
-    throw createError({ statusCode: 502, statusMessage: `Email send failed: ${await res.text()}` });
+    // Nitro hides 5xx detail from the HTTP response, so log the Resend reason server-side.
+    console.error(`[auth] Resend send failed (${res.status}): ${await res.text()}`);
+    throw createError({ statusCode: 502, statusMessage: "email_send_failed" });
   }
 };

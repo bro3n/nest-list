@@ -3,10 +3,14 @@ compatibility_date = "2025-07-15"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
 
-# D1 database binding. Create it once with:
-#   npx wrangler d1 create nest-list
-# then paste the printed database_id below (and add the same binding in the
-# Cloudflare Pages dashboard → Settings → Functions for production).
+# Plain (non-secret) env vars for production. Secrets (RESEND_API_KEY, SESSION_SECRET)
+# stay as encrypted Secrets in the Pages dashboard.
+[vars]
+EMAIL_FROM = "Nest List <send@nestlist.org>"
+
+# D1 database binding. Created once with `npx wrangler d1 create nest-list`.
+# This wrangler.toml manages the binding — with a wrangler.toml present, the Pages
+# dashboard only manages Secrets, not plain vars or bindings.
 [[d1_databases]]
 binding = "DB"
 database_name = "nest-list"

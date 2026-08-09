@@ -95,8 +95,9 @@ ajoutée **simultanément aux 4 fichiers** `locales/{fr,en,es,zh}.json`.
     `nest_session` (HttpOnly, 90 j).
   - `POST /api/auth/logout` / `GET /api/auth/me`.
   - Client : `useAuth()` + plugin d'hydratation + middleware global `auth.global.ts`.
-- **Secrets** (`.dev.vars` en local, dashboard CF en prod) : `RESEND_API_KEY`, `EMAIL_FROM`, `SESSION_SECRET`.
-  Sans vraie clé Resend, le code OTP est loggé dans la console serveur (test sans email).
+- **Config** : en local tout est dans `.dev.vars` (`RESEND_API_KEY`, `EMAIL_FROM`, `SESSION_SECRET`).
+  En prod : `EMAIL_FROM` + binding D1 dans `wrangler.toml`, secrets `RESEND_API_KEY`/`SESSION_SECRET` dans
+  le dashboard. Sans vraie clé Resend, le code OTP est loggé dans la console serveur (test sans email).
 - Le service worker **ne cache jamais `/api/*`** (bypass réseau dans `public/sw.js`).
 
 ## Déploiement — Cloudflare Pages
@@ -107,8 +108,10 @@ ajoutée **simultanément aux 4 fichiers** `locales/{fr,en,es,zh}.json`.
 | Build output | `dist` |
 | Node version | `NODE_VERSION=20` (ou +) |
 
-- **Bindings** (Settings → Functions) : D1 `DB` = base `nest-list`.
-- **Variables/secrets** : `RESEND_API_KEY`, `EMAIL_FROM`, `SESSION_SECRET`.
+- **Binding D1 + var `EMAIL_FROM`** : gérés dans `wrangler.toml` (avec un `wrangler.toml` présent,
+  le dashboard ne gère plus les vars/bindings en clair). Ces réglages `wrangler.toml` s'appliquent à la
+  **production** ; pour les preview deployments, dupliquer sous `[env.preview]`.
+- **Secrets** (dashboard → Variables and Secrets, chiffrés) : `RESEND_API_KEY`, `SESSION_SECRET`.
 - Migrations de prod : `npm run db:migrate:remote` (après `wrangler login`).
 - `public/_redirects` (`/* /index.html 200`) couvre les routes dynamiques de la SPA.
 - `public/_headers` force `Cache-Control: no-cache` sur `/sw.js`.
