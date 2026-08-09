@@ -21,7 +21,9 @@ const title = ref(initial?.title ?? "");
 const items = ref<ChecklistItem[]>((initial?.items ?? []).map((item) => ({ ...item })));
 const tags = ref<string[]>([...(initial?.tags ?? [])]);
 
-// Real items = those with text; the trailing empty row is only the "add" line.
+// The last row is always the "add" line (kept empty); every earlier row is a
+// real item, which must have content.
+const lastIndex = computed(() => items.value.length - 1);
 const realItems = () => items.value.filter((item) => item.text.trim());
 
 // Keep exactly one empty row at the end: typing in it turns it into a real item
@@ -251,14 +253,14 @@ const onDelete = () => {
       <UFormField :label="$t('list.itemsLabel')">
         <div ref="listEl" class="flex flex-col gap-2">
           <div
-            v-for="item in items"
+            v-for="(item, index) in items"
             :key="item.id"
             :data-id="item.id"
             class="flex items-center gap-2"
-            :class="item.text ? 'drag-item' : 'drag-empty'"
+            :class="index < lastIndex ? 'drag-item' : 'drag-empty'"
           >
             <UButton
-              v-if="item.text"
+              v-if="index < lastIndex"
               icon="i-heroicons-x-mark"
               color="neutral"
               variant="ghost"
@@ -267,18 +269,22 @@ const onDelete = () => {
             />
             <UInput
               v-model="item.text"
-              :placeholder="$t('list.itemPlaceholder')"
+              :placeholder="
+                index === lastIndex ? $t('list.itemPlaceholder') : $t('list.itemRequired')
+              "
+              :color="index < lastIndex && !item.text.trim() ? 'error' : undefined"
+              :highlight="index < lastIndex && !item.text.trim()"
               class="flex-1"
               :ui="{ base: item.checked ? 'line-through text-slate-400 dark:text-slate-500' : '' }"
             />
             <span
-              v-if="item.text && dragMode"
+              v-if="index < lastIndex && dragMode"
               class="drag-handle flex cursor-grab touch-none text-slate-400 active:cursor-grabbing"
               :aria-label="$t('list.reorder')"
             >
               <UIcon name="i-heroicons-bars-2" class="size-5" />
             </span>
-            <UCheckbox v-show="item.text && !dragMode" v-model="item.checked" size="xl" />
+            <UCheckbox v-show="index < lastIndex && !dragMode" v-model="item.checked" size="xl" />
           </div>
         </div>
 
