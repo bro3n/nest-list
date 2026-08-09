@@ -1,7 +1,7 @@
 name = "nest-list"
 compatibility_date = "2025-07-15"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".output/public"
+pages_build_output_dir = "dist"
 
 # D1 database binding. Create it once with:
 #   npx wrangler d1 create nest-list
