@@ -1,5 +1,24 @@
 {
   "nav": { "title": "Nest List", "home": "Inicio", "trash": "Papelera" },
+  "auth": {
+    "title": "Iniciar sesión",
+    "subtitle": "Introduce tu correo para recibir un código de acceso.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu{'@'}ejemplo.com",
+    "sendCode": "Enviar código",
+    "codeLabel": "Código",
+    "codePlaceholder": "Código de 6 dígitos",
+    "verify": "Iniciar sesión",
+    "resend": "Reenviar código",
+    "changeEmail": "Cambiar correo",
+    "checkEmail": "Enviamos un código a {email}.",
+    "emailInvalid": "Introduce un correo válido.",
+    "invalidCode": "Código no válido. Inténtalo de nuevo.",
+    "expiredCode": "Este código ha caducado. Solicita uno nuevo.",
+    "tooManyRequests": "Demasiados intentos. Inténtalo más tarde.",
+    "genericError": "Algo salió mal. Inténtalo de nuevo.",
+    "logout": "Cerrar sesión"
+  },
   "common": { "darkMode": "Modo oscuro", "lightMode": "Modo claro", "cancel": "Cancelar" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {

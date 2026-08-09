@@ -1,5 +1,24 @@
 {
   "nav": { "title": "Nest List", "home": "Accueil", "trash": "Corbeille" },
+  "auth": {
+    "title": "Connexion",
+    "subtitle": "Entrez votre email pour recevoir un code de connexion.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "vous{'@'}exemple.com",
+    "sendCode": "Envoyer le code",
+    "codeLabel": "Code",
+    "codePlaceholder": "Code à 6 chiffres",
+    "verify": "Se connecter",
+    "resend": "Renvoyer le code",
+    "changeEmail": "Changer d'email",
+    "checkEmail": "Nous avons envoyé un code à {email}.",
+    "emailInvalid": "Veuillez saisir un email valide.",
+    "invalidCode": "Code invalide. Veuillez réessayer.",
+    "expiredCode": "Ce code a expiré. Demandez-en un nouveau.",
+    "tooManyRequests": "Trop de tentatives. Réessayez plus tard.",
+    "genericError": "Une erreur est survenue. Veuillez réessayer.",
+    "logout": "Se déconnecter"
+  },
   "common": { "darkMode": "Mode sombre", "lightMode": "Mode clair", "cancel": "Annuler" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {

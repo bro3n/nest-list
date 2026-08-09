@@ -4,8 +4,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: false,
   sourcemap: { server: true, client: true },
-  modules: ["@nuxt/eslint", "@nuxt/ui", "@nuxtjs/i18n"],
+  modules: ["@nuxt/eslint", "@nuxt/ui", "@nuxtjs/i18n", "nitro-cloudflare-dev"],
   css: ["~/assets/css/main.css"],
+  nitro: { preset: "cloudflare-pages" },
 
   i18n: {
     locales: [

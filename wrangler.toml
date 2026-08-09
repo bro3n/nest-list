@@ -1,0 +1,14 @@
+name = "nest-list"
+compatibility_date = "2025-07-15"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".output/public"
+
+# D1 database binding. Create it once with:
+#   npx wrangler d1 create nest-list
+# then paste the printed database_id below (and add the same binding in the
+# Cloudflare Pages dashboard → Settings → Functions for production).
+[[d1_databases]]
+binding = "DB"
+database_name = "nest-list"
+database_id = "6d8c1578-d41b-4ede-a260-138006707bde"
+migrations_dir = "server/database/migrations"

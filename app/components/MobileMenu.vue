@@ -8,17 +8,24 @@ defineProps<{
   localeOptions: LocaleOption[];
   currentLocaleOption?: LocaleOption;
   isDark: boolean;
+  isAuthenticated: boolean;
 }>();
 
 const emit = defineEmits<{
   updateLocale: [option: LocaleOption];
   toggleDark: [];
+  logout: [];
 }>();
 
 const open = ref(false);
 
 const onUpdateLocale = (option: LocaleOption) => {
   emit("updateLocale", option);
+  open.value = false;
+};
+
+const onLogout = () => {
+  emit("logout");
   open.value = false;
 };
 </script>
@@ -37,6 +44,7 @@ const onUpdateLocale = (option: LocaleOption) => {
       <template #body>
         <div class="flex flex-col gap-4">
           <UButton
+            v-if="isAuthenticated"
             to="/lists/new"
             icon="i-heroicons-plus"
             block
@@ -59,6 +67,16 @@ const onUpdateLocale = (option: LocaleOption) => {
             block
             :label="isDark ? $t('common.lightMode') : $t('common.darkMode')"
             @click="emit('toggleDark')"
+          />
+
+          <UButton
+            v-if="isAuthenticated"
+            icon="i-heroicons-arrow-right-on-rectangle"
+            color="neutral"
+            variant="soft"
+            block
+            :label="$t('auth.logout')"
+            @click="onLogout"
           />
         </div>
       </template>

@@ -23,3 +23,7 @@ yarn-error.log*
 .env
 .env.*
 !.env.example
+
+# Cloudflare / Wrangler
+.dev.vars
+.wrangler

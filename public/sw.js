@@ -27,7 +27,10 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
 
   if (request.method !== "GET") return;
-  if (new URL(request.url).origin !== self.location.origin) return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  // Never cache API calls — auth/session and future data must hit the network.
+  if (url.pathname.startsWith("/api/")) return;
 
   // NetworkFirst for navigation requests (HTML).
   if (request.mode === "navigate") {

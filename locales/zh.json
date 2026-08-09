@@ -1,5 +1,24 @@
 {
   "nav": { "title": "Nest List", "home": "首页", "trash": "回收站" },
+  "auth": {
+    "title": "登录",
+    "subtitle": "输入你的邮箱以接收登录验证码。",
+    "emailLabel": "邮箱",
+    "emailPlaceholder": "you{'@'}example.com",
+    "sendCode": "发送验证码",
+    "codeLabel": "验证码",
+    "codePlaceholder": "6 位验证码",
+    "verify": "登录",
+    "resend": "重新发送验证码",
+    "changeEmail": "更改邮箱",
+    "checkEmail": "我们已向 {email} 发送验证码。",
+    "emailInvalid": "请输入有效的邮箱。",
+    "invalidCode": "验证码无效，请重试。",
+    "expiredCode": "验证码已过期，请重新获取。",
+    "tooManyRequests": "尝试次数过多，请稍后再试。",
+    "genericError": "出错了，请重试。",
+    "logout": "退出登录"
+  },
   "common": { "darkMode": "深色模式", "lightMode": "浅色模式", "cancel": "取消" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {

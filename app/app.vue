@@ -26,6 +26,13 @@ const toggleDark = () => {
   colorMode.preference = colorMode.value === "dark" ? "light" : "dark";
 };
 
+const router = useRouter();
+const { isAuthenticated, logout } = useAuth();
+const onLogout = async () => {
+  await logout();
+  await router.push("/auth");
+};
+
 useHead({
   title: appConfig.title,
 });
@@ -42,7 +49,13 @@ useHead({
         </NuxtLink>
 
         <nav class="hidden items-center gap-3 sm:flex">
-          <UButton to="/lists/new" icon="i-heroicons-plus" size="sm" :label="$t('lists.add')" />
+          <UButton
+            v-if="isAuthenticated"
+            to="/lists/new"
+            icon="i-heroicons-plus"
+            size="sm"
+            :label="$t('lists.add')"
+          />
 
           <USelectMenu
             :model-value="currentLocaleOption"
@@ -59,15 +72,26 @@ useHead({
             :aria-label="isDark ? $t('common.lightMode') : $t('common.darkMode')"
             @click="toggleDark"
           />
+
+          <UButton
+            v-if="isAuthenticated"
+            icon="i-heroicons-arrow-right-on-rectangle"
+            color="neutral"
+            variant="ghost"
+            :aria-label="$t('auth.logout')"
+            @click="onLogout"
+          />
         </nav>
 
         <MobileMenu
           :locale-options="localeOptions"
           :current-locale-option="currentLocaleOption"
           :is-dark="isDark"
+          :is-authenticated="isAuthenticated"
           class="sm:hidden"
           @update-locale="updateLocale"
           @toggle-dark="toggleDark"
+          @logout="onLogout"
         />
       </div>
     </header>
