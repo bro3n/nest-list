@@ -14,63 +14,62 @@ export interface NestList {
   updatedAt: string;
 }
 
-// Shape as stored on disk, tolerant of the pre-checklist format (content string).
-type StoredList = Partial<NestList> & { content?: string };
-
-const STORAGE_KEY = "nest-list:lists";
-
-// Migrate a stored list to the current shape: a plain-text content is turned
-// into one checklist item per non-empty line.
-const migrateList = (raw: StoredList): NestList => {
-  const items: ChecklistItem[] = Array.isArray(raw.items)
-    ? raw.items
-    : typeof raw.content === "string"
-      ? raw.content
-          .split("\n")
-          .map((line) => line.trim())
-          .filter(Boolean)
-          .map((text) => ({ id: crypto.randomUUID(), text, checked: false }))
-      : [];
-  return {
-    id: raw.id as string,
-    title: raw.title ?? "",
-    items,
-    featured: !!raw.featured,
-    tags: Array.isArray(raw.tags) ? raw.tags : [],
-    createdAt: raw.createdAt as string,
-    updatedAt: raw.updatedAt as string,
-  };
+type ListPatch = Partial<Pick<NestList, "title" | "items" | "featured" | "tags">> & {
+  updatedAt?: string;
 };
 
-// Runs once per client session: backfill colors for tags created before the
-// color feature (or restored from storage).
-let tagColorsInitialized = false;
+// Persistence is optimistic: mutations update the reactive state immediately,
+// then sync to D1 in the background. Ids are generated client-side so creates
+// return synchronously and callers (and the URL) can use the id at once.
+// Hot-path edits (title/items) are debounced per list; a create's POST is
+// awaited before any later PATCH for the same list so they can't race.
+const creating = new Map<string, Promise<unknown>>();
+const pendingBody = new Map<string, ListPatch>();
+const pendingTimer = new Map<string, ReturnType<typeof setTimeout>>();
 
-// Interim persistence in localStorage. To be replaced by Turso sync later:
-// only the read/write internals of this composable should need to change.
+const flushPatch = async (id: string) => {
+  const body = pendingBody.get(id);
+  pendingBody.delete(id);
+  if (!body) return;
+  try {
+    const create = creating.get(id);
+    if (create) await create;
+    await $fetch(`/api/lists/${id}`, { method: "PATCH", body });
+  } catch (e) {
+    console.error("[lists] patch failed", e);
+  }
+};
+
+const queuePatch = (id: string, patch: ListPatch) => {
+  pendingBody.set(id, { ...pendingBody.get(id), ...patch });
+  clearTimeout(pendingTimer.get(id));
+  pendingTimer.set(
+    id,
+    setTimeout(() => flushPatch(id), 400),
+  );
+};
+
 export const useLists = () => {
   const { ensureColor } = useTagColors();
 
-  const lists = useState<NestList[]>("lists", () => {
-    if (!import.meta.client) return [];
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    try {
-      return (JSON.parse(raw) as StoredList[]).map(migrateList);
-    } catch {
-      return [];
-    }
-  });
+  const lists = useState<NestList[]>("lists", () => []);
+  const loaded = useState<boolean>("lists:loaded", () => false);
 
-  const persist = () => {
-    if (!import.meta.client) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(lists.value));
+  const load = async () => {
+    if (loaded.value) return;
+    try {
+      lists.value = await $fetch<NestList[]>("/api/lists");
+      loaded.value = true;
+      for (const tag of new Set(lists.value.flatMap((list) => list.tags ?? []))) ensureColor(tag);
+    } catch (e) {
+      console.error("[lists] load failed", e);
+    }
   };
 
-  if (import.meta.client && !tagColorsInitialized) {
-    tagColorsInitialized = true;
-    for (const tag of new Set(lists.value.flatMap((list) => list.tags ?? []))) ensureColor(tag);
-  }
+  const reset = () => {
+    lists.value = [];
+    loaded.value = false;
+  };
 
   // Featured first, then most recently updated on top within each group.
   const sortedLists = computed(() =>
@@ -80,7 +79,6 @@ export const useLists = () => {
     }),
   );
 
-  // All tags used across lists, deduped and alphabetically sorted.
   const allTags = computed(() =>
     [...new Set(lists.value.flatMap((list) => list.tags ?? []))].sort((a, b) => a.localeCompare(b)),
   );
@@ -111,15 +109,21 @@ export const useLists = () => {
       updatedAt: now,
     };
     lists.value = [list, ...lists.value];
-    persist();
+    creating.set(
+      list.id,
+      $fetch("/api/lists", { method: "POST", body: list }).catch((e) =>
+        console.error("[lists] create failed", e),
+      ),
+    );
     return list;
   };
 
   const updateList = (id: string, patch: Partial<Pick<NestList, "title" | "items">>) => {
     const list = getList(id);
     if (!list) return;
-    Object.assign(list, patch, { updatedAt: new Date().toISOString() });
-    persist();
+    const updatedAt = new Date().toISOString();
+    Object.assign(list, patch, { updatedAt });
+    queuePatch(id, { ...patch, updatedAt });
   };
 
   // Append a checklist item at the end of a list (used to restore deleted items).
@@ -128,7 +132,7 @@ export const useLists = () => {
     if (!list) return;
     list.items.push({ id: crypto.randomUUID(), text, checked: false });
     list.updatedAt = new Date().toISOString();
-    persist();
+    queuePatch(id, { items: list.items, updatedAt: list.updatedAt });
   };
 
   // Pinning is not an edit: it must not bump updatedAt.
@@ -136,27 +140,36 @@ export const useLists = () => {
     const list = getList(id);
     if (!list) return;
     list.featured = !list.featured;
-    persist();
+    queuePatch(id, { featured: list.featured });
   };
 
-  // Tags are always lowercase and space-free.
   const normalizeTag = (tag: string) => tag.trim().toLowerCase().replace(/\s+/g, "");
 
   // Tagging is classification, not a content edit: it must not bump updatedAt.
-  // Returns the normalized tags so callers can reflect them in the UI.
   const setTags = (id: string, tags: string[]): string[] => {
     const list = getList(id);
     if (!list) return [];
     const normalized = [...new Set(tags.map(normalizeTag).filter(Boolean))];
     list.tags = normalized;
     normalized.forEach(ensureColor);
-    persist();
+    queuePatch(id, { tags: normalized });
     return normalized;
   };
 
   const removeList = (id: string) => {
     lists.value = lists.value.filter((list) => list.id !== id);
-    persist();
+    clearTimeout(pendingTimer.get(id));
+    pendingBody.delete(id);
+    const del = async () => {
+      try {
+        const create = creating.get(id);
+        if (create) await create;
+        await $fetch(`/api/lists/${id}`, { method: "DELETE" });
+      } catch (e) {
+        console.error("[lists] delete failed", e);
+      }
+    };
+    del();
   };
 
   return {
@@ -171,5 +184,7 @@ export const useLists = () => {
     toggleFeatured,
     setTags,
     removeList,
+    load,
+    reset,
   };
 };

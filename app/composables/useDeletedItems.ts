@@ -9,27 +9,27 @@ export interface DeletedItem {
   deletedAt: string;
 }
 
-const STORAGE_KEY = "nest-list:deleted";
-// Kept per list, most recent first.
+// Kept per list, most recent first (also enforced server-side).
 const MAX_PER_LIST = 100;
 
-// Interim persistence in localStorage, like useLists. Keeps at most the 100
-// most recently deleted checklist items.
+// Trash persisted in D1 (via /api/trash), optimistic like useLists.
 export const useDeletedItems = () => {
-  const deleted = useState<DeletedItem[]>("deletedItems", () => {
-    if (!import.meta.client) return [];
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    try {
-      return JSON.parse(raw) as DeletedItem[];
-    } catch {
-      return [];
-    }
-  });
+  const deleted = useState<DeletedItem[]>("deletedItems", () => []);
+  const loaded = useState<boolean>("deletedItems:loaded", () => false);
 
-  const persist = () => {
-    if (!import.meta.client) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(deleted.value));
+  const load = async () => {
+    if (loaded.value) return;
+    try {
+      deleted.value = await $fetch<DeletedItem[]>("/api/trash");
+      loaded.value = true;
+    } catch (e) {
+      console.error("[trash] load failed", e);
+    }
+  };
+
+  const reset = () => {
+    deleted.value = [];
+    loaded.value = false;
   };
 
   // Most recently deleted first.
@@ -56,13 +56,17 @@ export const useDeletedItems = () => {
       counts[entry.listId] = (counts[entry.listId] ?? 0) + 1;
       return counts[entry.listId] <= MAX_PER_LIST;
     });
-    persist();
+    $fetch("/api/trash", { method: "POST", body: { entries } }).catch((e) =>
+      console.error("[trash] record failed", e),
+    );
   };
 
   const remove = (id: string) => {
     deleted.value = deleted.value.filter((entry) => entry.id !== id);
-    persist();
+    $fetch(`/api/trash/${id}`, { method: "DELETE" }).catch((e) =>
+      console.error("[trash] remove failed", e),
+    );
   };
 
-  return { deleted, sorted, record, remove };
+  return { deleted, sorted, record, remove, load, reset };
 };

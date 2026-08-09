@@ -3,31 +3,40 @@ interface TagColorStore {
   colors: Record<string, number>;
 }
 
-const STORAGE_KEY = "nest-list:tag-colors";
 // Golden angle: successive hues land far apart around the color wheel,
 // so no two tag colors are ever close to each other.
 const GOLDEN_ANGLE = 137.508;
 
-// Interim persistence in localStorage, alongside useLists. Colors are assigned
-// once per tag and kept stable afterwards.
+let saveTimer: ReturnType<typeof setTimeout> | undefined;
+
+// Per-user colors persisted in D1 (via /api/settings/tag-colors). Colors are
+// assigned once per tag and kept stable afterwards; writes are debounced.
 export const useTagColors = () => {
-  const store = useState<TagColorStore>("tagColors", () => {
-    if (!import.meta.client) return { seed: 0, colors: {} };
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        return JSON.parse(raw) as TagColorStore;
-      } catch {
-        // fall through to a fresh store
-      }
+  const store = useState<TagColorStore>("tagColors", () => ({ seed: 0, colors: {} }));
+  const loaded = useState<boolean>("tagColors:loaded", () => false);
+
+  const load = async () => {
+    if (loaded.value) return;
+    try {
+      store.value = await $fetch<TagColorStore>("/api/settings/tag-colors");
+      loaded.value = true;
+    } catch (e) {
+      console.error("[tagColors] load failed", e);
     }
-    // Random starting offset so the first tag's color varies between users.
-    return { seed: Math.random() * 360, colors: {} };
-  });
+  };
+
+  const reset = () => {
+    store.value = { seed: 0, colors: {} };
+    loaded.value = false;
+  };
 
   const persist = () => {
-    if (!import.meta.client) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(store.value));
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      $fetch("/api/settings/tag-colors", { method: "PUT", body: store.value }).catch((e) =>
+        console.error("[tagColors] save failed", e),
+      );
+    }, 400);
   };
 
   // Assign a stable, well-separated hue the first time a tag is seen.
@@ -49,5 +58,5 @@ export const useTagColors = () => {
     return hash;
   };
 
-  return { ensureColor, hueForTag };
+  return { ensureColor, hueForTag, load, reset };
 };

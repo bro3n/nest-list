@@ -38,9 +38,13 @@ app/
 │   └── auth.client.ts   # Hydrate la session (/api/auth/me) avant le guard
 └── types/
 server/                  # Backend Nitro (déployé avec le front sur CF Pages)
-├── api/auth/            # request-code, verify, logout, me
+├── api/
+│   ├── auth/            # request-code, verify, logout, me
+│   ├── lists/           # CRUD listes (index.get/post, [id].patch/delete)
+│   ├── trash/           # corbeille (index.get/post, [id].delete)
+│   └── settings/        # tag-colors (get/put)
 ├── utils/               # db, crypto, session, otp, rate-limit, email, validate (auto-import)
-└── database/migrations/ # 0001_init.sql (schéma D1)
+└── database/migrations/ # 0001_init.sql, 0002_lists_data.sql
 locales/                 # fr.json, en.json, es.json, zh.json
 public/                  # manifest, sw.js, icônes, _redirects, _headers, robots.txt
 wrangler.toml            # binding D1 + config migrations ; .dev.vars = secrets locaux (git-ignoré)
@@ -89,6 +93,11 @@ ajoutée **simultanément aux 4 fichiers** `locales/{fr,en,es,zh}.json`.
   `_worker.js`, `_routes.json`). La SPA reste `ssr: false` ; seules les routes `server/api/*` tournent côté serveur.
 - **D1** : accès via `useDb(event)` (`event.context.cloudflare.env.DB`). Requêtes en SQL préparé
   (`.prepare().bind().run()/first()`). Schéma dans `server/database/migrations/`.
+- **Données (listes, corbeille, couleurs de tags)** : persistées en D1, scoping par utilisateur
+  (`owner_id` / `user_id`). Client **optimiste** : `useLists`/`useDeletedItems`/`useTagColors` mettent à
+  jour l'état réactif puis synchronisent en tâche de fond (PATCH débouncé pour les éditions title/items,
+  ids générés côté client). Le plugin `auth.client.ts` charge listes + couleurs au boot et vide tout au
+  logout ; la corbeille est chargée à la demande. Plus aucune donnée en `localStorage`.
 - **Auth email-OTP** (tout en D1, pas de KV) :
   - `POST /api/auth/request-code` → code 6 chiffres stocké hashé (`otp_codes`), envoyé par email + rate-limit.
   - `POST /api/auth/verify` → vérifie le code, upsert `users`, ouvre une session (`sessions`), pose le cookie

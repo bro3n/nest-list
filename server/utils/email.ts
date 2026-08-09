@@ -12,7 +12,9 @@ export const sendOtpEmail = async (event: H3Event, email: string, code: string):
   if (!hasRealKey) return;
 
   if (!EMAIL_FROM) {
-    console.error("[auth] EMAIL_FROM is not set — refusing to fall back to the Resend sandbox sender");
+    console.error(
+      "[auth] EMAIL_FROM is not set — refusing to fall back to the Resend sandbox sender",
+    );
     throw createError({ statusCode: 500, statusMessage: "email_from_missing" });
   }
 

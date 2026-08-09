@@ -59,6 +59,13 @@ export const getSessionUser = async (event: H3Event): Promise<SessionUser | null
   return { id: row.id, email: row.email };
 };
 
+// Guards a route: returns the current user or throws 401.
+export const requireUser = async (event: H3Event): Promise<SessionUser> => {
+  const user = await getSessionUser(event);
+  if (!user) throw createError({ statusCode: 401, statusMessage: "unauthenticated" });
+  return user;
+};
+
 export const destroySession = async (event: H3Event): Promise<void> => {
   const token = getCookie(event, COOKIE_NAME);
   if (token) {

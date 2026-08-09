@@ -4,8 +4,11 @@ import type { DeletedItem } from "~/composables/useDeletedItems";
 const route = useRoute();
 const router = useRouter();
 const { locale } = useI18n();
-const { sorted, remove } = useDeletedItems();
+const { sorted, remove, load } = useDeletedItems();
 const { getList, appendItem } = useLists();
+
+// Trash is loaded lazily (lists are already loaded at boot).
+onMounted(load);
 
 const id = route.params.id as string;
 const list = computed(() => getList(id));
