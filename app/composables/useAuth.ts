@@ -36,6 +36,11 @@ export const useAuth = () => {
     user.value = null;
   };
 
+  const deleteAccount = async (): Promise<void> => {
+    await $fetch("/api/account", { method: "DELETE" });
+    user.value = null;
+  };
+
   return {
     user,
     ready,
@@ -44,5 +49,6 @@ export const useAuth = () => {
     requestCode,
     verify,
     logout,
+    deleteAccount,
   };
 };

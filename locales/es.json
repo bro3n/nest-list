@@ -46,6 +46,18 @@
     "errorMember": "Esta persona ya es miembro.",
     "errorGeneric": "Algo salió mal. Inténtalo de nuevo."
   },
+  "account": {
+    "heading": "Cuenta",
+    "signedInAs": "Sesión iniciada como {email}",
+    "dangerZone": "Zona de peligro",
+    "deleteWarning": "Eliminar tu cuenta es permanente. Se eliminan tus listas propias, la papelera y los ajustes. Debes transferir o eliminar las listas que compartes antes de eliminar tu cuenta.",
+    "deleteButton": "Eliminar mi cuenta",
+    "deleteTitle": "Eliminar cuenta",
+    "confirmPrompt": "Escribe {email} para confirmar",
+    "confirmDelete": "Eliminar definitivamente",
+    "errorSharedLists": "Aún tienes listas compartidas. Transfiérelas o elimínalas primero.",
+    "errorGeneric": "Algo salió mal. Inténtalo de nuevo."
+  },
   "common": { "darkMode": "Modo oscuro", "lightMode": "Modo claro", "cancel": "Cancelar" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {

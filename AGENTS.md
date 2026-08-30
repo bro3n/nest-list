@@ -103,6 +103,8 @@ ajoutée **simultanément aux 4 fichiers** `locales/{fr,en,es,zh}.json`.
   - `POST /api/auth/verify` → vérifie le code, upsert `users`, ouvre une session (`sessions`), pose le cookie
     `nest_session` (HttpOnly, 90 j).
   - `POST /api/auth/logout` / `GET /api/auth/me`.
+  - `DELETE /api/account` → suppression de compte (refusée si l'utilisateur possède des listes
+    partagées ; listes solo et données perso supprimées).
   - Client : `useAuth()` + plugin d'hydratation + middleware global `auth.global.ts`.
 - **Config** : en local tout est dans `.dev.vars` (`RESEND_API_KEY`, `EMAIL_FROM`, `SESSION_SECRET`).
   En prod : `EMAIL_FROM` + binding D1 dans `wrangler.toml`, secrets `RESEND_API_KEY`/`SESSION_SECRET` dans

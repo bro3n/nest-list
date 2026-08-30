@@ -88,6 +88,17 @@ const onLogout = () => {
 
           <UButton
             v-if="isAuthenticated"
+            to="/account"
+            icon="i-heroicons-user-circle"
+            color="neutral"
+            variant="soft"
+            block
+            :label="$t('account.heading')"
+            @click="open = false"
+          />
+
+          <UButton
+            v-if="isAuthenticated"
             icon="i-heroicons-arrow-right-on-rectangle"
             color="neutral"
             variant="soft"

@@ -46,6 +46,18 @@
     "errorMember": "This person is already a member.",
     "errorGeneric": "Something went wrong. Please try again."
   },
+  "account": {
+    "heading": "Account",
+    "signedInAs": "Signed in as {email}",
+    "dangerZone": "Danger zone",
+    "deleteWarning": "Deleting your account is permanent. Your solo lists, trash and settings are removed. You must transfer or delete any lists you share before deleting your account.",
+    "deleteButton": "Delete my account",
+    "deleteTitle": "Delete account",
+    "confirmPrompt": "Type {email} to confirm",
+    "confirmDelete": "Delete permanently",
+    "errorSharedLists": "You still own shared lists. Transfer or delete them first.",
+    "errorGeneric": "Something went wrong. Please try again."
+  },
   "common": { "darkMode": "Dark mode", "lightMode": "Light mode", "cancel": "Cancel" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {

@@ -46,6 +46,18 @@
     "errorMember": "Cette personne est déjà membre.",
     "errorGeneric": "Une erreur est survenue. Veuillez réessayer."
   },
+  "account": {
+    "heading": "Compte",
+    "signedInAs": "Connecté en tant que {email}",
+    "dangerZone": "Zone de danger",
+    "deleteWarning": "La suppression de ton compte est définitive. Tes listes solo, ta corbeille et tes réglages sont supprimés. Tu dois d'abord transférer ou supprimer les listes que tu partages.",
+    "deleteButton": "Supprimer mon compte",
+    "deleteTitle": "Supprimer le compte",
+    "confirmPrompt": "Tape {email} pour confirmer",
+    "confirmDelete": "Supprimer définitivement",
+    "errorSharedLists": "Tu possèdes encore des listes partagées. Transfère-les ou supprime-les d'abord.",
+    "errorGeneric": "Une erreur est survenue. Veuillez réessayer."
+  },
   "common": { "darkMode": "Mode sombre", "lightMode": "Mode clair", "cancel": "Annuler" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {

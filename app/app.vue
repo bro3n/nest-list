@@ -92,6 +92,15 @@ useHead({
 
           <UButton
             v-if="isAuthenticated"
+            to="/account"
+            icon="i-heroicons-user-circle"
+            color="neutral"
+            variant="ghost"
+            :aria-label="$t('account.heading')"
+          />
+
+          <UButton
+            v-if="isAuthenticated"
             icon="i-heroicons-arrow-right-on-rectangle"
             color="neutral"
             variant="ghost"

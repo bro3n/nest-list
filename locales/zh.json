@@ -46,6 +46,18 @@
     "errorMember": "此人已是成员。",
     "errorGeneric": "出错了，请重试。"
   },
+  "account": {
+    "heading": "账户",
+    "signedInAs": "已登录为 {email}",
+    "dangerZone": "危险区域",
+    "deleteWarning": "删除账户不可撤销。你的私人清单、回收站和设置将被删除。删除账户前，必须先转让或删除你共享的清单。",
+    "deleteButton": "删除我的账户",
+    "deleteTitle": "删除账户",
+    "confirmPrompt": "输入 {email} 以确认",
+    "confirmDelete": "永久删除",
+    "errorSharedLists": "你仍拥有共享清单。请先转让或删除它们。",
+    "errorGeneric": "出错了，请重试。"
+  },
   "common": { "darkMode": "深色模式", "lightMode": "浅色模式", "cancel": "取消" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {
