@@ -11,18 +11,14 @@ interface PatchBody {
   updatedAt?: string;
 }
 
-// Partial update of a list the user owns. Only provided fields change; `items`
-// (when given) fully replaces the list's items. updatedAt is client-driven.
+// Partial update of a list the user can edit (owner or editor). Only provided
+// fields change; `items` (when given) fully replaces the list's items.
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
   const db = useDb(event);
   const id = getRouterParam(event, "id") as string;
 
-  const owned = await db
-    .prepare("SELECT 1 FROM lists WHERE id = ? AND owner_id = ?")
-    .bind(id, user.id)
-    .first();
-  if (!owned) throw createError({ statusCode: 404, statusMessage: "not_found" });
+  await requireListRole(event, id, user.id, ["owner", "editor"]);
 
   const body = await readBody<PatchBody>(event);
   const sets: string[] = [];

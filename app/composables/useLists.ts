@@ -4,6 +4,8 @@ export interface ChecklistItem {
   checked: boolean;
 }
 
+export type ListRole = "owner" | "editor" | "viewer";
+
 export interface NestList {
   id: string;
   title: string;
@@ -12,6 +14,9 @@ export interface NestList {
   tags: string[];
   createdAt: string;
   updatedAt: string;
+  // Present on lists loaded from the server: my role and the owner's email.
+  role?: ListRole;
+  ownerEmail?: string;
 }
 
 type ListPatch = Partial<Pick<NestList, "title" | "items" | "featured" | "tags">> & {
@@ -66,6 +71,11 @@ export const useLists = () => {
     }
   };
 
+  const refresh = async () => {
+    loaded.value = false;
+    await load();
+  };
+
   const reset = () => {
     lists.value = [];
     loaded.value = false;
@@ -107,6 +117,7 @@ export const useLists = () => {
       tags: [],
       createdAt: now,
       updatedAt: now,
+      role: "owner",
     };
     lists.value = [list, ...lists.value];
     creating.set(
@@ -185,6 +196,7 @@ export const useLists = () => {
     setTags,
     removeList,
     load,
+    refresh,
     reset,
   };
 };

@@ -7,6 +7,8 @@ const router = useRouter();
 const { t, locale } = useI18n();
 const { getList, titleExists, createList, updateList, setTags, removeList, allTags } = useLists();
 const { record: recordDeleted } = useDeletedItems();
+const { user } = useAuth();
+const { leave } = useSharing();
 
 const routeId = route.params.id as string;
 const isNew = routeId === "new";
@@ -16,6 +18,14 @@ const initial = isNew ? undefined : getList(routeId);
 const listId = ref<string | null>(isNew ? null : initial ? routeId : null);
 // A non-"new" route pointing at an unknown id.
 const missing = !isNew && !initial;
+
+// My role on this list drives what the UI allows. A draft is always "owner".
+const myRole = computed(() => {
+  if (isNew || listId.value === null) return "owner";
+  return getList(listId.value)?.role;
+});
+const canEdit = computed(() => myRole.value === "owner" || myRole.value === "editor");
+const isOwner = computed(() => myRole.value === "owner");
 
 const title = ref(initial?.title ?? "");
 const items = ref<ChecklistItem[]>((initial?.items ?? []).map((item) => ({ ...item })));
@@ -34,7 +44,7 @@ const ensureTrailingEmpty = () => {
     items.value.push({ id: crypto.randomUUID(), text: "", checked: false });
   }
 };
-ensureTrailingEmpty();
+if (canEdit.value) ensureTrailingEmpty();
 
 const removeItem = (itemId: string) => {
   const item = items.value.find((i) => i.id === itemId);
@@ -141,6 +151,7 @@ const onCreateTag = (raw: string) => {
 // is created — and the URL switched — only once, not on every keystroke.
 // A draft with an empty or duplicate title is never persisted.
 const commitTitle = () => {
+  if (!canEdit.value) return;
   titleTouched.value = true;
   const clean = title.value.trim();
   if (!clean || titleExists(clean, listId.value ?? undefined)) return;
@@ -161,6 +172,7 @@ const commitTitle = () => {
 watch(
   items,
   () => {
+    if (!canEdit.value) return;
     ensureTrailingEmpty();
     if (listId.value === null) return;
     updateList(listId.value, { items: realItems() });
@@ -172,7 +184,7 @@ watch(
 watch(
   tags,
   () => {
-    if (listId.value === null) return;
+    if (!canEdit.value || listId.value === null) return;
     const normalized = setTags(listId.value, tags.value);
     if (normalized.join("\n") !== tags.value.join("\n")) tags.value = normalized;
   },
@@ -185,9 +197,20 @@ const formatDate = (iso: string) =>
   );
 
 const showDeleteConfirm = ref(false);
+const showShare = ref(false);
 
 const onDelete = () => {
   if (listId.value) removeList(listId.value);
+  router.push("/");
+};
+
+const onLeave = async () => {
+  if (!listId.value || !user.value) return;
+  try {
+    await leave(listId.value, user.value.id);
+  } catch (e) {
+    console.error("[share] leave failed", e);
+  }
   router.push("/");
 };
 </script>
@@ -206,6 +229,7 @@ const onDelete = () => {
       </UButton>
       <div class="flex items-center gap-2 sm:gap-3">
         <USwitch
+          v-if="canEdit"
           v-model="checkMode"
           checked-icon="i-heroicons-check"
           unchecked-icon="i-heroicons-arrows-up-down"
@@ -213,7 +237,7 @@ const onDelete = () => {
           :aria-label="$t('list.dragMode')"
         />
         <UButton
-          v-if="listId"
+          v-if="listId && canEdit"
           icon="i-heroicons-archive-box"
           color="neutral"
           variant="ghost"
@@ -223,7 +247,27 @@ const onDelete = () => {
           <span class="hidden sm:inline">{{ $t("nav.trash") }}</span>
         </UButton>
         <UButton
-          v-if="listId"
+          v-if="listId && isOwner"
+          icon="i-heroicons-user-plus"
+          color="neutral"
+          variant="ghost"
+          :aria-label="$t('share.title')"
+          @click="showShare = true"
+        >
+          <span class="hidden sm:inline">{{ $t("share.title") }}</span>
+        </UButton>
+        <UButton
+          v-if="listId && myRole && !isOwner"
+          icon="i-heroicons-arrow-left-on-rectangle"
+          color="neutral"
+          variant="ghost"
+          :aria-label="$t('share.leave')"
+          @click="onLeave"
+        >
+          <span class="hidden sm:inline">{{ $t("share.leave") }}</span>
+        </UButton>
+        <UButton
+          v-if="listId && isOwner"
           icon="i-heroicons-trash"
           color="error"
           variant="ghost"
@@ -240,10 +284,15 @@ const onDelete = () => {
     </p>
 
     <div v-else class="flex flex-col gap-4">
+      <p v-if="list && !isOwner" class="text-sm text-slate-500 dark:text-slate-400">
+        {{ $t("share.sharedBy", { email: list.ownerEmail }) }} · {{ $t(`share.role.${myRole}`) }}
+      </p>
+
       <UFormField :label="$t('list.titleLabel')" :error="displayedTitleError || undefined">
         <UInput
           v-model="title"
           :placeholder="$t('list.untitled')"
+          :readonly="!canEdit"
           class="w-full"
           @blur="commitTitle"
           @keyup.enter="commitTitle"
@@ -260,7 +309,7 @@ const onDelete = () => {
             :class="index < lastIndex ? 'drag-item' : 'drag-empty'"
           >
             <UButton
-              v-if="index < lastIndex"
+              v-if="index < lastIndex && canEdit"
               icon="i-heroicons-x-mark"
               color="neutral"
               variant="ghost"
@@ -272,6 +321,7 @@ const onDelete = () => {
               :placeholder="
                 index === lastIndex ? $t('list.itemPlaceholder') : $t('list.itemRequired')
               "
+              :readonly="!canEdit"
               :color="index < lastIndex && !item.text.trim() ? 'error' : undefined"
               :highlight="index < lastIndex && !item.text.trim()"
               class="flex-1"
@@ -284,11 +334,16 @@ const onDelete = () => {
             >
               <UIcon name="i-heroicons-bars-2" class="size-5" />
             </span>
-            <UCheckbox v-show="index < lastIndex && !dragMode" v-model="item.checked" size="xl" />
+            <UCheckbox
+              v-show="index < lastIndex && !dragMode"
+              v-model="item.checked"
+              :disabled="!canEdit"
+              size="xl"
+            />
           </div>
         </div>
 
-        <div class="mt-3 flex flex-wrap gap-2">
+        <div v-if="canEdit" class="mt-3 flex flex-wrap gap-2">
           <UButton
             icon="i-heroicons-check-circle"
             color="info"
@@ -310,6 +365,7 @@ const onDelete = () => {
 
       <UFormField :label="$t('list.tagsLabel')">
         <UInputMenu
+          v-if="canEdit"
           v-model="tags"
           v-model:search-term="tagSearch"
           :items="tagItems"
@@ -319,6 +375,9 @@ const onDelete = () => {
           class="w-full"
           @create="onCreateTag"
         />
+        <div v-else-if="tags.length" class="flex flex-wrap gap-2">
+          <TagChip v-for="tag in tags" :key="tag" :tag="tag" />
+        </div>
       </UFormField>
 
       <dl v-if="list" class="flex flex-col gap-1 text-sm text-slate-500 dark:text-slate-400">
@@ -351,5 +410,7 @@ const onDelete = () => {
         </div>
       </template>
     </UModal>
+
+    <ShareDialog v-if="listId" v-model:open="showShare" :list-id="listId" />
   </div>
 </template>

@@ -19,6 +19,30 @@
     "genericError": "Algo salió mal. Inténtalo de nuevo.",
     "logout": "Cerrar sesión"
   },
+  "invitations": {
+    "heading": "Invitaciones",
+    "empty": "No hay invitaciones pendientes.",
+    "from": "De {email}",
+    "accept": "Aceptar",
+    "decline": "Rechazar"
+  },
+  "share": {
+    "title": "Compartir",
+    "inviteLabel": "Invitar por correo",
+    "emailPlaceholder": "nombre{'@'}ejemplo.com",
+    "invite": "Enviar invitación",
+    "role": { "owner": "Propietario", "editor": "Editor", "viewer": "Lector" },
+    "members": "Miembros",
+    "pending": "Invitaciones pendientes",
+    "remove": "Quitar",
+    "revoke": "Cancelar invitación",
+    "leave": "Salir",
+    "sharedBy": "Compartida por {email}",
+    "errorEmail": "Introduce un correo válido.",
+    "errorSelf": "No puedes invitarte a ti mismo.",
+    "errorMember": "Esta persona ya es miembro.",
+    "errorGeneric": "Algo salió mal. Inténtalo de nuevo."
+  },
   "common": { "darkMode": "Modo oscuro", "lightMode": "Modo claro", "cancel": "Cancelar" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {

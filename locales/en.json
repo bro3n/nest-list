@@ -19,6 +19,30 @@
     "genericError": "Something went wrong. Please try again.",
     "logout": "Sign out"
   },
+  "invitations": {
+    "heading": "Invitations",
+    "empty": "No pending invitations.",
+    "from": "From {email}",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "share": {
+    "title": "Share",
+    "inviteLabel": "Invite by email",
+    "emailPlaceholder": "name{'@'}example.com",
+    "invite": "Send invitation",
+    "role": { "owner": "Owner", "editor": "Editor", "viewer": "Viewer" },
+    "members": "Members",
+    "pending": "Pending invitations",
+    "remove": "Remove",
+    "revoke": "Cancel invitation",
+    "leave": "Leave",
+    "sharedBy": "Shared by {email}",
+    "errorEmail": "Please enter a valid email.",
+    "errorSelf": "You can't invite yourself.",
+    "errorMember": "This person is already a member.",
+    "errorGeneric": "Something went wrong. Please try again."
+  },
   "common": { "darkMode": "Dark mode", "lightMode": "Light mode", "cancel": "Cancel" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {

@@ -19,6 +19,8 @@ const emit = defineEmits<{
 
 const open = ref(false);
 
+const { count: invitationCount } = useInvitations();
+
 const onUpdateLocale = (option: LocaleOption) => {
   emit("updateLocale", option);
   open.value = false;
@@ -67,6 +69,21 @@ const onLogout = () => {
             block
             :label="isDark ? $t('common.lightMode') : $t('common.darkMode')"
             @click="emit('toggleDark')"
+          />
+
+          <UButton
+            v-if="isAuthenticated"
+            to="/invitations"
+            icon="i-heroicons-inbox"
+            color="neutral"
+            variant="soft"
+            block
+            :label="
+              invitationCount > 0
+                ? `${$t('invitations.heading')} (${invitationCount})`
+                : $t('invitations.heading')
+            "
+            @click="open = false"
           />
 
           <UButton

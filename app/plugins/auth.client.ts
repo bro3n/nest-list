@@ -8,6 +8,7 @@ export default defineNuxtPlugin(async () => {
   const lists = useLists();
   const colors = useTagColors();
   const trash = useDeletedItems();
+  const invitations = useInvitations();
 
   // One-time cleanup of the previous localStorage persistence (now in D1).
   if (import.meta.client) {
@@ -17,15 +18,16 @@ export default defineNuxtPlugin(async () => {
   }
 
   await fetchMe();
-  if (isAuthenticated.value) await Promise.all([lists.load(), colors.load()]);
+  if (isAuthenticated.value) await Promise.all([lists.load(), colors.load(), invitations.load()]);
 
   watch(isAuthenticated, async (authed) => {
     if (authed) {
-      await Promise.all([lists.load(), colors.load()]);
+      await Promise.all([lists.load(), colors.load(), invitations.load()]);
     } else {
       lists.reset();
       colors.reset();
       trash.reset();
+      invitations.reset();
     }
   });
 });

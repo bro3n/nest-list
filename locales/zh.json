@@ -19,6 +19,30 @@
     "genericError": "出错了，请重试。",
     "logout": "退出登录"
   },
+  "invitations": {
+    "heading": "邀请",
+    "empty": "没有待处理的邀请。",
+    "from": "来自 {email}",
+    "accept": "接受",
+    "decline": "拒绝"
+  },
+  "share": {
+    "title": "共享",
+    "inviteLabel": "通过邮箱邀请",
+    "emailPlaceholder": "name{'@'}example.com",
+    "invite": "发送邀请",
+    "role": { "owner": "所有者", "editor": "编辑者", "viewer": "查看者" },
+    "members": "成员",
+    "pending": "待处理的邀请",
+    "remove": "移除",
+    "revoke": "取消邀请",
+    "leave": "退出",
+    "sharedBy": "由 {email} 共享",
+    "errorEmail": "请输入有效的邮箱。",
+    "errorSelf": "不能邀请自己。",
+    "errorMember": "此人已是成员。",
+    "errorGeneric": "出错了，请重试。"
+  },
   "common": { "darkMode": "深色模式", "lightMode": "浅色模式", "cancel": "取消" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {

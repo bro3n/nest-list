@@ -28,6 +28,7 @@ const toggleDark = () => {
 
 const router = useRouter();
 const { isAuthenticated, logout } = useAuth();
+const { count: invitationCount } = useInvitations();
 const onLogout = async () => {
   await logout();
   await router.push("/auth");
@@ -72,6 +73,22 @@ useHead({
             :aria-label="isDark ? $t('common.lightMode') : $t('common.darkMode')"
             @click="toggleDark"
           />
+
+          <UChip
+            v-if="isAuthenticated"
+            :text="invitationCount"
+            :show="invitationCount > 0"
+            color="error"
+            size="2xl"
+          >
+            <UButton
+              to="/invitations"
+              icon="i-heroicons-inbox"
+              color="neutral"
+              variant="ghost"
+              :aria-label="$t('invitations.heading')"
+            />
+          </UChip>
 
           <UButton
             v-if="isAuthenticated"
