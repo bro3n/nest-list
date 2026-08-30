@@ -5,7 +5,8 @@ const props = defineProps<{ listId: string }>();
 const open = defineModel<boolean>("open", { required: true });
 
 const { t } = useI18n();
-const { getShares, invite, setRole, removeMember, revokeInvite } = useSharing();
+const { getShares, invite, setRole, removeMember, revokeInvite, transfer } = useSharing();
+const { refresh: refreshLists } = useLists();
 
 type Role = "editor" | "viewer";
 
@@ -15,6 +16,10 @@ const email = ref("");
 const role = ref<Role>("editor");
 const loading = ref(false);
 const error = ref("");
+
+const transferTarget = ref<ShareMember | null>(null);
+const showTransferConfirm = ref(false);
+const transferring = ref(false);
 
 const refresh = async () => {
   try {
@@ -74,6 +79,25 @@ const onRemove = async (userId: string) => {
 const onRevoke = async (invitationId: string) => {
   await revokeInvite(props.listId, invitationId);
   await refresh();
+};
+
+const onMakeOwner = (m: ShareMember) => {
+  transferTarget.value = m;
+  showTransferConfirm.value = true;
+};
+const onConfirmTransfer = async () => {
+  if (!transferTarget.value) return;
+  transferring.value = true;
+  try {
+    await transfer(props.listId, transferTarget.value.userId);
+    showTransferConfirm.value = false;
+    open.value = false; // the current user is no longer the owner
+    await refreshLists();
+  } catch (e) {
+    console.error("[share] transfer failed", e);
+  } finally {
+    transferring.value = false;
+  }
 };
 </script>
 
@@ -141,6 +165,14 @@ const onRevoke = async (invitationId: string) => {
               />
               <UButton
                 size="xs"
+                icon="i-heroicons-arrow-up-circle"
+                color="neutral"
+                variant="ghost"
+                :aria-label="$t('share.makeOwner')"
+                @click="onMakeOwner(m)"
+              />
+              <UButton
+                size="xs"
                 icon="i-heroicons-x-mark"
                 color="error"
                 variant="ghost"
@@ -172,6 +204,29 @@ const onRevoke = async (invitationId: string) => {
             />
           </div>
         </div>
+      </div>
+    </template>
+  </UModal>
+
+  <UModal v-model:open="showTransferConfirm" :title="$t('share.transferTitle')">
+    <template #body>
+      <p class="text-sm text-slate-600 dark:text-slate-300">
+        {{ $t("share.transferMessage", { email: transferTarget?.email }) }}
+      </p>
+    </template>
+    <template #footer>
+      <div class="flex w-full justify-end gap-2">
+        <UButton
+          color="neutral"
+          variant="ghost"
+          :label="$t('common.cancel')"
+          @click="showTransferConfirm = false"
+        />
+        <UButton
+          :loading="transferring"
+          :label="$t('share.makeOwner')"
+          @click="onConfirmTransfer"
+        />
       </div>
     </template>
   </UModal>

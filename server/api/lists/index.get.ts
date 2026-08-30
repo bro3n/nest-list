@@ -1,29 +1,31 @@
 // Returns the authenticated user's lists — owned and accepted-shared — each with
-// its ordered items, the user's role, and the owner's email.
+// its ordered items, the user's role, the owner's email, and the user's own pin.
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
   const db = useDb(event);
 
   const { results: lists } = await db
     .prepare(
-      "SELECT l.id, l.title, l.featured, l.tags, l.created_at, l.updated_at, " +
+      "SELECT l.id, l.title, l.tags, l.created_at, l.updated_at, " +
         "o.email AS owner_email, " +
-        "CASE WHEN l.owner_id = ? THEN 'owner' ELSE m.role END AS role " +
+        "CASE WHEN l.owner_id = ? THEN 'owner' ELSE m.role END AS role, " +
+        "CASE WHEN p.user_id IS NOT NULL THEN 1 ELSE 0 END AS featured " +
         "FROM lists l " +
         "JOIN users o ON o.id = l.owner_id " +
         "LEFT JOIN list_members m ON m.list_id = l.id AND m.user_id = ? " +
+        "LEFT JOIN list_pins p ON p.list_id = l.id AND p.user_id = ? " +
         "WHERE l.owner_id = ? OR m.user_id = ?",
     )
-    .bind(user.id, user.id, user.id, user.id)
+    .bind(user.id, user.id, user.id, user.id, user.id)
     .all<{
       id: string;
       title: string;
-      featured: number;
       tags: string;
       created_at: string;
       updated_at: string;
       owner_email: string;
       role: "owner" | "editor" | "viewer";
+      featured: number;
     }>();
 
   const { results: items } = await db

@@ -6,7 +6,6 @@ interface ClientItem {
 interface PatchBody {
   title?: string;
   items?: ClientItem[];
-  featured?: boolean;
   tags?: string[];
   updatedAt?: string;
 }
@@ -26,10 +25,6 @@ export default defineEventHandler(async (event) => {
   if (typeof body?.title === "string") {
     sets.push("title = ?");
     binds.push(body.title.trim());
-  }
-  if (typeof body?.featured === "boolean") {
-    sets.push("featured = ?");
-    binds.push(body.featured ? 1 : 0);
   }
   if (Array.isArray(body?.tags)) {
     sets.push("tags = ?");

@@ -19,7 +19,7 @@ export interface NestList {
   ownerEmail?: string;
 }
 
-type ListPatch = Partial<Pick<NestList, "title" | "items" | "featured" | "tags">> & {
+type ListPatch = Partial<Pick<NestList, "title" | "items" | "tags">> & {
   updatedAt?: string;
 };
 
@@ -146,12 +146,20 @@ export const useLists = () => {
     queuePatch(id, { items: list.items, updatedAt: list.updatedAt });
   };
 
-  // Pinning is not an edit: it must not bump updatedAt.
-  const toggleFeatured = (id: string) => {
+  // Pinning is per-user (list_pins) and not a content edit: it never bumps
+  // updatedAt and goes through its own endpoint rather than a list PATCH.
+  const toggleFeatured = async (id: string) => {
     const list = getList(id);
     if (!list) return;
     list.featured = !list.featured;
-    queuePatch(id, { featured: list.featured });
+    const method = list.featured ? "PUT" : "DELETE";
+    try {
+      const create = creating.get(id);
+      if (create) await create;
+      await $fetch(`/api/lists/${id}/pin`, { method });
+    } catch (e) {
+      console.error("[lists] pin failed", e);
+    }
   };
 
   const normalizeTag = (tag: string) => tag.trim().toLowerCase().replace(/\s+/g, "");

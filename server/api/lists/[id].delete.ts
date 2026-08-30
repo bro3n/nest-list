@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
     db.prepare("DELETE FROM list_items WHERE list_id = ?").bind(id),
     db.prepare("DELETE FROM list_members WHERE list_id = ?").bind(id),
     db.prepare("DELETE FROM list_invitations WHERE list_id = ?").bind(id),
+    db.prepare("DELETE FROM list_pins WHERE list_id = ?").bind(id),
     db.prepare("DELETE FROM lists WHERE id = ?").bind(id),
   ]);
 

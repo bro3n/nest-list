@@ -7,7 +7,6 @@ interface CreateBody {
   id?: string;
   title?: string;
   items?: ClientItem[];
-  featured?: boolean;
   tags?: string[];
   createdAt?: string;
   updatedAt?: string;
@@ -36,14 +35,13 @@ export default defineEventHandler(async (event) => {
   await db.batch([
     db
       .prepare(
-        "INSERT INTO lists (id, owner_id, title, featured, tags, created_at, updated_at) " +
-          "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO lists (id, owner_id, title, tags, created_at, updated_at) " +
+          "VALUES (?, ?, ?, ?, ?, ?)",
       )
       .bind(
         id,
         user.id,
         title,
-        body?.featured ? 1 : 0,
         JSON.stringify(Array.isArray(body?.tags) ? body.tags : []),
         body?.createdAt ?? now,
         body?.updatedAt ?? now,

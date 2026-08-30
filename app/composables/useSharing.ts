@@ -33,5 +33,8 @@ export const useSharing = () => {
 
   const leave = (listId: string, myUserId: string) => removeMember(listId, myUserId);
 
-  return { getShares, invite, setRole, removeMember, revokeInvite, leave };
+  const transfer = (listId: string, userId: string) =>
+    $fetch(`/api/lists/${listId}/transfer`, { method: "POST", body: { userId } });
+
+  return { getShares, invite, setRole, removeMember, revokeInvite, leave, transfer };
 };
