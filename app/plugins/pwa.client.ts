@@ -39,6 +39,14 @@ export default defineNuxtPlugin(() => {
             }
           });
         });
+
+        // Proactively look for a new deployment: on an interval and whenever the
+        // tab regains focus. A found update triggers `updatefound` above.
+        const checkForUpdate = () => registration.update().catch(() => {});
+        setInterval(checkForUpdate, 30000);
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) checkForUpdate();
+        });
       })
       .catch(() => {
         // Registration failures are non-fatal: the app still works without the SW.
