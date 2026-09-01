@@ -101,7 +101,9 @@ ajoutée **simultanément aux 4 fichiers** `locales/{fr,en,es,zh}.json`.
 - **Sync quasi temps réel** : sur la page d'une liste, un polling (~2 s, en pause si onglet masqué ou
   édition locale en cours) interroge `GET /api/lists/:id?rev=N` ; le serveur renvoie `{ unchanged }` si la
   `revision` n'a pas bougé, sinon le snapshot, fusionné sans écraser la saisie locale. `lists.revision` est
-  incrémentée à chaque écriture partagée (PATCH).
+  incrémentée à chaque écriture partagée (PATCH). Les PATCH échoués restent en file et sont rejoués (backoff
+  + flush sur `online`) — jamais perdus, et ils bloquent le merge tant qu'ils ne sont pas passés. Une
+  bannière signale la sync en pause (hors-ligne ou écritures en échec).
 - **Auth email-OTP** (tout en D1, pas de KV) :
   - `POST /api/auth/request-code` → code 6 chiffres stocké hashé (`otp_codes`), envoyé par email + rate-limit.
   - `POST /api/auth/verify` → vérifie le code, upsert `users`, ouvre une session (`sessions`), pose le cookie

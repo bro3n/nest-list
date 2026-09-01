@@ -58,6 +58,9 @@
     "errorSharedLists": "You still own shared lists. Transfer or delete them first.",
     "errorGeneric": "Something went wrong. Please try again."
   },
+  "sync": {
+    "paused": "Sync paused — your changes are saved and will be sent automatically."
+  },
   "common": { "darkMode": "Dark mode", "lightMode": "Light mode", "cancel": "Cancel" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {

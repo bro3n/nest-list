@@ -15,6 +15,7 @@ const {
   allTags,
   hasPendingWrite,
   applyRemote,
+  syncFailing,
 } = useLists();
 const { record: recordDeleted } = useDeletedItems();
 const { user } = useAuth();
@@ -41,6 +42,10 @@ const isOwner = computed(() => myRole.value === "owner");
 // remote update never clobbers what the local user is typing.
 const editingField = ref<string | null>(null);
 const applyingRemote = ref(false);
+
+// Sync is paused when offline or while writes are failing/retrying.
+const online = useState<boolean>("net:online", () => true);
+const syncPaused = computed(() => !online.value || syncFailing.value);
 
 const title = ref(initial?.title ?? "");
 const items = ref<ChecklistItem[]>((initial?.items ?? []).map((item) => ({ ...item })));
@@ -381,6 +386,14 @@ const onLeave = async () => {
     </p>
 
     <div v-else class="flex flex-col gap-4">
+      <p
+        v-if="syncPaused"
+        class="flex items-center gap-2 rounded-md bg-amber-100 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/50 dark:text-amber-300"
+      >
+        <UIcon name="i-heroicons-cloud" class="size-4 shrink-0" />
+        {{ $t("sync.paused") }}
+      </p>
+
       <p v-if="list && !isOwner" class="text-sm text-slate-500 dark:text-slate-400">
         {{ $t("share.sharedBy", { email: list.ownerEmail }) }} · {{ $t(`share.role.${myRole}`) }}
       </p>

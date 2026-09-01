@@ -58,6 +58,9 @@
     "errorSharedLists": "Aún tienes listas compartidas. Transfiérelas o elimínalas primero.",
     "errorGeneric": "Algo salió mal. Inténtalo de nuevo."
   },
+  "sync": {
+    "paused": "Sincronización en pausa: tus cambios se guardan y se enviarán automáticamente."
+  },
   "common": { "darkMode": "Modo oscuro", "lightMode": "Modo claro", "cancel": "Cancelar" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {

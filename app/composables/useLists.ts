@@ -33,42 +33,99 @@ type ListPatch = Partial<Pick<NestList, "title" | "items" | "tags">> & {
 const creating = new Map<string, Promise<unknown>>();
 const pendingBody = new Map<string, ListPatch>();
 const pendingTimer = new Map<string, ReturnType<typeof setTimeout>>();
+const retryCount = new Map<string, number>();
+const inFlight = new Set<string>();
 
 // Module-level handle to the shared list state, so the debounced flush (which
 // runs outside a Nuxt context) can advance a list's known revision after a write.
 let listsState: { value: NestList[] } | null = null;
 
-// True while a local change is queued but not yet sent — used by the realtime
-// poll to avoid overwriting the user's in-flight edits.
+// Reactive: true while one or more writes are failing and being retried.
+const syncFailing = ref(false);
+
+// Statuses that mean the write will never succeed — drop it instead of retrying.
+const PERMANENT = new Set([400, 401, 403, 404, 409, 422]);
+
+let onlineHooked = false;
+const hookOnline = () => {
+  if (onlineHooked || typeof window === "undefined") return;
+  onlineHooked = true;
+  window.addEventListener("online", () => {
+    for (const id of [...pendingBody.keys()]) {
+      retryCount.delete(id);
+      clearTimeout(pendingTimer.get(id));
+      pendingTimer.delete(id);
+      flushPatch(id);
+    }
+  });
+};
+
+// A queued change stays in `pendingBody` until it is actually accepted by the
+// server, so a failed write is retried (never silently lost) and the realtime
+// poll stays blocked on that list until it lands (never clobbering it).
 const hasPendingWrite = (id: string) => pendingBody.has(id);
 
 const flushPatch = async (id: string) => {
-  const body = pendingBody.get(id);
-  pendingBody.delete(id);
+  if (inFlight.has(id)) {
+    // A flush is already running; try again shortly with whatever is queued then.
+    clearTimeout(pendingTimer.get(id));
+    pendingTimer.set(
+      id,
+      setTimeout(() => flushPatch(id), 400),
+    );
+    return;
+  }
   pendingTimer.delete(id);
+  const body = pendingBody.get(id);
   if (!body) return;
+  inFlight.add(id);
   try {
     const create = creating.get(id);
     if (create) await create;
     const res = await $fetch<{ revision?: number }>(`/api/lists/${id}`, { method: "PATCH", body });
-    // Advance the known revision so the poll doesn't treat our own write as a
-    // remote change.
+    if (pendingBody.get(id) === body) pendingBody.delete(id); // nothing newer queued
+    retryCount.delete(id);
+    // Advance the known revision so the poll doesn't treat our own write as remote.
     if (res?.revision != null && listsState) {
       const l = listsState.value.find((x) => x.id === id);
       if (l) l.revision = res.revision;
     }
   } catch (e) {
-    console.error("[lists] patch failed", e);
+    const status =
+      (e as { statusCode?: number; response?: { status?: number } }).statusCode ??
+      (e as { response?: { status?: number } }).response?.status;
+    if (status && PERMANENT.has(status)) {
+      // Rejected for good — drop it and let the next poll reconcile local state.
+      if (pendingBody.get(id) === body) pendingBody.delete(id);
+      retryCount.delete(id);
+      console.error("[lists] patch rejected", status);
+    } else {
+      // Transient (offline / 5xx / timeout) — keep it and retry with backoff.
+      const n = (retryCount.get(id) ?? 0) + 1;
+      retryCount.set(id, n);
+      clearTimeout(pendingTimer.get(id));
+      pendingTimer.set(
+        id,
+        setTimeout(() => flushPatch(id), Math.min(1000 * 2 ** (n - 1), 30000)),
+      );
+      console.error("[lists] patch failed, will retry", e);
+    }
+  } finally {
+    inFlight.delete(id);
+    syncFailing.value = retryCount.size > 0;
   }
 };
 
 const queuePatch = (id: string, patch: ListPatch) => {
   pendingBody.set(id, { ...pendingBody.get(id), ...patch });
+  retryCount.delete(id); // a fresh user edit resets the backoff
+  syncFailing.value = retryCount.size > 0;
   clearTimeout(pendingTimer.get(id));
   pendingTimer.set(
     id,
     setTimeout(() => flushPatch(id), 400),
   );
+  hookOnline();
 };
 
 export const useLists = () => {
@@ -197,7 +254,10 @@ export const useLists = () => {
   const removeList = (id: string) => {
     lists.value = lists.value.filter((list) => list.id !== id);
     clearTimeout(pendingTimer.get(id));
+    pendingTimer.delete(id);
     pendingBody.delete(id);
+    retryCount.delete(id);
+    syncFailing.value = retryCount.size > 0;
     const del = async () => {
       try {
         const create = creating.get(id);
@@ -248,5 +308,6 @@ export const useLists = () => {
     reset,
     hasPendingWrite,
     applyRemote,
+    syncFailing,
   };
 };

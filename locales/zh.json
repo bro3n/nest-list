@@ -58,6 +58,9 @@
     "errorSharedLists": "你仍拥有共享清单。请先转让或删除它们。",
     "errorGeneric": "出错了，请重试。"
   },
+  "sync": {
+    "paused": "同步已暂停 — 你的修改已保存，将自动重新发送。"
+  },
   "common": { "darkMode": "深色模式", "lightMode": "浅色模式", "cancel": "取消" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {
