@@ -35,10 +35,10 @@ export default defineEventHandler(async (event) => {
     binds.push(body.updatedAt);
   }
 
+  // Every patch bumps the revision so other members' polls detect the change.
   const stmts = [];
-  if (sets.length) {
-    stmts.push(db.prepare(`UPDATE lists SET ${sets.join(", ")} WHERE id = ?`).bind(...binds, id));
-  }
+  sets.push("revision = revision + 1");
+  stmts.push(db.prepare(`UPDATE lists SET ${sets.join(", ")} WHERE id = ?`).bind(...binds, id));
   if (Array.isArray(body?.items)) {
     stmts.push(db.prepare("DELETE FROM list_items WHERE list_id = ?").bind(id));
     body.items.forEach((it, i) =>
@@ -51,7 +51,11 @@ export default defineEventHandler(async (event) => {
       ),
     );
   }
-  if (stmts.length) await db.batch(stmts);
+  await db.batch(stmts);
 
-  return { ok: true };
+  const row = await db
+    .prepare("SELECT revision FROM lists WHERE id = ?")
+    .bind(id)
+    .first<{ revision: number }>();
+  return { ok: true, revision: row?.revision };
 });

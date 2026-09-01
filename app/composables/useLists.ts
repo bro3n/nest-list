@@ -14,9 +14,11 @@ export interface NestList {
   tags: string[];
   createdAt: string;
   updatedAt: string;
-  // Present on lists loaded from the server: my role and the owner's email.
+  // Present on lists loaded from the server: my role, the owner's email, and the
+  // change counter used to detect other members' edits while polling.
   role?: ListRole;
   ownerEmail?: string;
+  revision?: number;
 }
 
 type ListPatch = Partial<Pick<NestList, "title" | "items" | "tags">> & {
@@ -32,14 +34,29 @@ const creating = new Map<string, Promise<unknown>>();
 const pendingBody = new Map<string, ListPatch>();
 const pendingTimer = new Map<string, ReturnType<typeof setTimeout>>();
 
+// Module-level handle to the shared list state, so the debounced flush (which
+// runs outside a Nuxt context) can advance a list's known revision after a write.
+let listsState: { value: NestList[] } | null = null;
+
+// True while a local change is queued but not yet sent — used by the realtime
+// poll to avoid overwriting the user's in-flight edits.
+const hasPendingWrite = (id: string) => pendingBody.has(id);
+
 const flushPatch = async (id: string) => {
   const body = pendingBody.get(id);
   pendingBody.delete(id);
+  pendingTimer.delete(id);
   if (!body) return;
   try {
     const create = creating.get(id);
     if (create) await create;
-    await $fetch(`/api/lists/${id}`, { method: "PATCH", body });
+    const res = await $fetch<{ revision?: number }>(`/api/lists/${id}`, { method: "PATCH", body });
+    // Advance the known revision so the poll doesn't treat our own write as a
+    // remote change.
+    if (res?.revision != null && listsState) {
+      const l = listsState.value.find((x) => x.id === id);
+      if (l) l.revision = res.revision;
+    }
   } catch (e) {
     console.error("[lists] patch failed", e);
   }
@@ -59,6 +76,7 @@ export const useLists = () => {
 
   const lists = useState<NestList[]>("lists", () => []);
   const loaded = useState<boolean>("lists:loaded", () => false);
+  listsState = lists;
 
   const load = async () => {
     if (loaded.value) return;
@@ -118,6 +136,7 @@ export const useLists = () => {
       createdAt: now,
       updatedAt: now,
       role: "owner",
+      revision: 0,
     };
     lists.value = [list, ...lists.value];
     creating.set(
@@ -191,6 +210,27 @@ export const useLists = () => {
     del();
   };
 
+  // Applies a fresh server snapshot to the stored list (realtime poll) without
+  // triggering any write-back.
+  const applyRemote = (
+    id: string,
+    snap: {
+      title: string;
+      items: ChecklistItem[];
+      tags: string[];
+      updatedAt: string;
+      revision: number;
+    },
+  ) => {
+    const list = getList(id);
+    if (!list) return;
+    list.title = snap.title;
+    list.items = snap.items;
+    list.tags = snap.tags;
+    list.updatedAt = snap.updatedAt;
+    list.revision = snap.revision;
+  };
+
   return {
     lists,
     sortedLists,
@@ -206,5 +246,7 @@ export const useLists = () => {
     load,
     refresh,
     reset,
+    hasPendingWrite,
+    applyRemote,
   };
 };

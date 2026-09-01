@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const { results: lists } = await db
     .prepare(
-      "SELECT l.id, l.title, l.tags, l.created_at, l.updated_at, " +
+      "SELECT l.id, l.title, l.tags, l.created_at, l.updated_at, l.revision, " +
         "o.email AS owner_email, " +
         "CASE WHEN l.owner_id = ? THEN 'owner' ELSE m.role END AS role, " +
         "CASE WHEN p.user_id IS NOT NULL THEN 1 ELSE 0 END AS featured " +
@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
       tags: string;
       created_at: string;
       updated_at: string;
+      revision: number;
       owner_email: string;
       role: "owner" | "editor" | "viewer";
       featured: number;
@@ -56,5 +57,6 @@ export default defineEventHandler(async (event) => {
     updatedAt: l.updated_at,
     role: l.role,
     ownerEmail: l.owner_email,
+    revision: l.revision,
   }));
 });

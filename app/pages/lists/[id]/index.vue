@@ -5,7 +5,17 @@ import type { ChecklistItem } from "~/composables/useLists";
 const route = useRoute();
 const router = useRouter();
 const { t, locale } = useI18n();
-const { getList, titleExists, createList, updateList, setTags, removeList, allTags } = useLists();
+const {
+  getList,
+  titleExists,
+  createList,
+  updateList,
+  setTags,
+  removeList,
+  allTags,
+  hasPendingWrite,
+  applyRemote,
+} = useLists();
 const { record: recordDeleted } = useDeletedItems();
 const { user } = useAuth();
 const { leave } = useSharing();
@@ -26,6 +36,11 @@ const myRole = computed(() => {
 });
 const canEdit = computed(() => myRole.value === "owner" || myRole.value === "editor");
 const isOwner = computed(() => myRole.value === "owner");
+
+// Realtime sync (polling). `editingField` and pending writes gate the merge so a
+// remote update never clobbers what the local user is typing.
+const editingField = ref<string | null>(null);
+const applyingRemote = ref(false);
 
 const title = ref(initial?.title ?? "");
 const items = ref<ChecklistItem[]>((initial?.items ?? []).map((item) => ({ ...item })));
@@ -172,7 +187,7 @@ const commitTitle = () => {
 watch(
   items,
   () => {
-    if (!canEdit.value) return;
+    if (applyingRemote.value || !canEdit.value) return;
     ensureTrailingEmpty();
     if (listId.value === null) return;
     updateList(listId.value, { items: realItems() });
@@ -184,12 +199,94 @@ watch(
 watch(
   tags,
   () => {
-    if (!canEdit.value || listId.value === null) return;
+    if (applyingRemote.value || !canEdit.value || listId.value === null) return;
     const normalized = setTags(listId.value, tags.value);
     if (normalized.join("\n") !== tags.value.join("\n")) tags.value = normalized;
   },
   { deep: true },
 );
+
+interface RemoteList {
+  id: string;
+  title: string;
+  items: ChecklistItem[];
+  tags: string[];
+  updatedAt: string;
+  revision: number;
+}
+
+// Adaptive cadence: normally every 2s, tightened to 1s for a short window after a
+// change from another member — so concurrent editors converge quickly.
+const IDLE_MS = 2000;
+const ACTIVE_MS = 1000;
+const ACTIVE_WINDOW_MS = 8000;
+let lastRemoteChangeAt = 0;
+
+// Known revision lives in the store: advanced by our own writes (flush) and by
+// merges, so a diff detected here always means a change from someone else.
+const knownRev = () => (listId.value ? (getList(listId.value)?.revision ?? 0) : 0);
+
+// Pull a fresh server snapshot into the local editable state (watchers suppressed).
+const mergeRemote = (data: RemoteList) => {
+  applyingRemote.value = true;
+  title.value = data.title;
+  items.value = data.items.map((it) => ({ ...it }));
+  ensureTrailingEmpty();
+  tags.value = [...data.tags];
+  applyRemote(data.id, {
+    title: data.title,
+    items: data.items,
+    tags: data.tags,
+    updatedAt: data.updatedAt,
+    revision: data.revision,
+  });
+  lastRemoteChangeAt = Date.now();
+  nextTick(() => {
+    applyingRemote.value = false;
+  });
+};
+
+// Skip while the user is mid-edit, has an unsent change, or the tab is hidden.
+const syncBlocked = () =>
+  !listId.value ||
+  editingField.value !== null ||
+  hasPendingWrite(listId.value) ||
+  (typeof document !== "undefined" && document.hidden);
+
+const poll = async () => {
+  if (syncBlocked()) return;
+  const id = listId.value as string;
+  try {
+    const data = await $fetch<RemoteList | { unchanged: true; revision: number }>(
+      `/api/lists/${id}`,
+      { query: { rev: knownRev() } },
+    );
+    if ("unchanged" in data) return;
+    if (syncBlocked() || data.id !== listId.value) return; // re-check after the await
+    mergeRemote(data);
+  } catch {
+    // 404 (deleted / not yet created) or network — retry on the next tick.
+  }
+};
+
+let pollTimer: ReturnType<typeof setTimeout> | null = null;
+const scheduleNext = () => {
+  const fast = Date.now() - lastRemoteChangeAt < ACTIVE_WINDOW_MS;
+  pollTimer = setTimeout(runPoll, fast ? ACTIVE_MS : IDLE_MS);
+};
+const runPoll = async () => {
+  await poll();
+  scheduleNext();
+};
+onMounted(scheduleNext);
+onBeforeUnmount(() => {
+  if (pollTimer) clearTimeout(pollTimer);
+});
+
+const onTitleBlur = () => {
+  editingField.value = null;
+  commitTitle();
+};
 
 const formatDate = (iso: string) =>
   new Intl.DateTimeFormat(locale.value, { dateStyle: "medium", timeStyle: "short" }).format(
@@ -294,7 +391,8 @@ const onLeave = async () => {
           :placeholder="$t('list.untitled')"
           :readonly="!canEdit"
           class="w-full"
-          @blur="commitTitle"
+          @focus="editingField = 'title'"
+          @blur="onTitleBlur"
           @keyup.enter="commitTitle"
         />
       </UFormField>
@@ -326,6 +424,8 @@ const onLeave = async () => {
               :highlight="index < lastIndex && !item.text.trim()"
               class="flex-1"
               :ui="{ base: item.checked ? 'line-through text-slate-400 dark:text-slate-500' : '' }"
+              @focus="editingField = item.id"
+              @blur="editingField = null"
             />
             <span
               v-if="index < lastIndex && dragMode"
