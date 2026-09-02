@@ -313,6 +313,12 @@ const closeEdit = () => {
   showEdit.value = false;
 };
 
+// Delete lives inside the edit modal (owner only): close it, then confirm.
+const onEditDelete = () => {
+  showEdit.value = false;
+  showDeleteConfirm.value = true;
+};
+
 const onDelete = () => {
   if (listId.value) removeList(listId.value);
   router.push("/");
@@ -333,7 +339,7 @@ const onLeave = async () => {
   <div class="w-full py-8">
     <div v-if="!missing" class="mb-4 flex flex-col gap-2">
       <h1
-        class="text-center text-2xl font-bold wrap-break-word"
+        class="text-center text-xl font-bold wrap-break-word sm:text-2xl"
         :class="{ 'text-slate-400 dark:text-slate-500': !title.trim() }"
       >
         {{ title.trim() || $t("list.untitled") }}
@@ -401,16 +407,6 @@ const onLeave = async () => {
           @click="onLeave"
         >
           <span class="hidden sm:inline">{{ $t("share.leave") }}</span>
-        </UButton>
-        <UButton
-          v-if="listId && isOwner"
-          icon="i-heroicons-trash"
-          color="error"
-          variant="ghost"
-          :aria-label="$t('list.delete')"
-          @click="showDeleteConfirm = true"
-        >
-          <span class="hidden sm:inline">{{ $t("list.delete") }}</span>
         </UButton>
       </div>
     </div>
@@ -559,8 +555,16 @@ const onLeave = async () => {
         </div>
       </template>
       <template #footer>
-        <div class="flex w-full justify-end">
-          <UButton :label="$t('common.done')" @click="closeEdit" />
+        <div class="flex w-full items-center justify-between gap-2">
+          <UButton
+            v-if="listId && isOwner"
+            icon="i-heroicons-trash"
+            color="error"
+            variant="ghost"
+            :label="$t('list.delete')"
+            @click="onEditDelete"
+          />
+          <UButton class="ms-auto" :label="$t('common.done')" @click="closeEdit" />
         </div>
       </template>
     </UModal>
