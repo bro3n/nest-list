@@ -9,6 +9,8 @@ const email = ref("");
 const code = ref("");
 const loading = ref(false);
 const error = ref("");
+// Last 6-digit code auto-submitted, to avoid re-firing the same value.
+let lastSubmitted = "";
 
 // Only allow in-app relative redirects (guards against open-redirect via ?redirect=).
 const safeRedirect = (): string => {
@@ -37,6 +39,8 @@ const messageFor = (e: unknown): string => {
 const onSendCode = async () => {
   error.value = "";
   loading.value = true;
+  code.value = "";
+  lastSubmitted = "";
   try {
     await requestCode(email.value.trim());
     step.value = "code";
@@ -51,7 +55,7 @@ const onVerify = async () => {
   error.value = "";
   loading.value = true;
   try {
-    await verify(email.value.trim(), code.value.trim());
+    await verify(email.value.trim(), code.value.replace(/\D/g, ""));
     await router.push(safeRedirect());
   } catch (e) {
     error.value = messageFor(e);
@@ -60,10 +64,22 @@ const onVerify = async () => {
   }
 };
 
+// Submit as soon as a full 6-digit code is present (manual entry or OTP autofill),
+// so there's no need to press the button. Guard against re-firing the same value,
+// e.g. after a wrong-code error.
+watch(code, (value) => {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 6 && !loading.value && digits !== lastSubmitted) {
+    lastSubmitted = digits;
+    onVerify();
+  }
+});
+
 const backToEmail = () => {
   step.value = "email";
   code.value = "";
   error.value = "";
+  lastSubmitted = "";
 };
 </script>
 
