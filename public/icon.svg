@@ -1,13 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Nest List">
   <title>Nest List</title>
-  <defs>
-    <radialGradient id="tile" cx="30%" cy="20%" r="120%">
-      <stop offset="0" stop-color="#24344a" />
-      <stop offset="0.46" stop-color="#1e293b" />
-      <stop offset="1" stop-color="#14202f" />
-    </radialGradient>
-  </defs>
-  <rect width="512" height="512" fill="url(#tile)" />
+  <!-- Flat slate == manifest background_color so the icon blends into the launch splash. -->
+  <rect width="512" height="512" fill="#1e293b" />
   <g
     transform="translate(92.16 92.16) scale(3.2768)"
     fill="none"

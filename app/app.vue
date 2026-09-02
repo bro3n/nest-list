@@ -46,7 +46,7 @@ useHead({
     <header class="border-b border-slate-400 dark:border-slate-800">
       <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-3">
         <NuxtLink to="/" :aria-label="$t('nav.title')" class="shrink-0">
-          <AppLogo />
+          <AppLogo :tile="false" />
         </NuxtLink>
 
         <nav class="hidden items-center gap-3 sm:flex">
