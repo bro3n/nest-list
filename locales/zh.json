@@ -41,6 +41,7 @@
     "transferTitle": "转让所有权",
     "transferMessage": "将所有权转让给 {email}？你将成为编辑者。",
     "sharedBy": "由 {email} 共享",
+    "sharedWithOthers": "已与他人共享",
     "errorEmail": "请输入有效的邮箱。",
     "errorSelf": "不能邀请自己。",
     "errorMember": "此人已是成员。",

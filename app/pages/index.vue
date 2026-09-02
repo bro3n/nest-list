@@ -69,10 +69,14 @@ const visibleLists = computed(() =>
           <span class="flex flex-wrap items-center gap-2">
             <span class="font-medium">{{ list.title || $t("list.untitled") }}</span>
             <UIcon
-              v-if="list.role && list.role !== 'owner'"
+              v-if="list.shared"
               name="i-heroicons-user-group"
               class="text-slate-400"
-              :title="$t('share.sharedBy', { email: list.ownerEmail })"
+              :title="
+                list.role === 'owner'
+                  ? $t('share.sharedWithOthers')
+                  : $t('share.sharedBy', { email: list.ownerEmail })
+              "
             />
             <TagChip v-for="tag in list.tags" :key="tag" :tag="tag" />
           </span>

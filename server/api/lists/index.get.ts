@@ -9,7 +9,10 @@ export default defineEventHandler(async (event) => {
       "SELECT l.id, l.title, l.tags, l.created_at, l.updated_at, l.revision, " +
         "o.email AS owner_email, " +
         "CASE WHEN l.owner_id = ? THEN 'owner' ELSE m.role END AS role, " +
-        "CASE WHEN p.user_id IS NOT NULL THEN 1 ELSE 0 END AS featured " +
+        "CASE WHEN p.user_id IS NOT NULL THEN 1 ELSE 0 END AS featured, " +
+        "CASE WHEN EXISTS (SELECT 1 FROM list_members mm WHERE mm.list_id = l.id AND mm.user_id <> l.owner_id) " +
+        "       OR EXISTS (SELECT 1 FROM list_invitations iv WHERE iv.list_id = l.id AND iv.status = 'pending') " +
+        "     THEN 1 ELSE 0 END AS shared " +
         "FROM lists l " +
         "JOIN users o ON o.id = l.owner_id " +
         "LEFT JOIN list_members m ON m.list_id = l.id AND m.user_id = ? " +
@@ -27,6 +30,7 @@ export default defineEventHandler(async (event) => {
       owner_email: string;
       role: "owner" | "editor" | "viewer";
       featured: number;
+      shared: number;
     }>();
 
   const { results: items } = await db
@@ -58,5 +62,6 @@ export default defineEventHandler(async (event) => {
     role: l.role,
     ownerEmail: l.owner_email,
     revision: l.revision,
+    shared: !!l.shared,
   }));
 });

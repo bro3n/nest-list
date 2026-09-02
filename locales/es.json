@@ -41,6 +41,7 @@
     "transferTitle": "Transferir propiedad",
     "transferMessage": "¿Transferir la propiedad a {email}? Pasarás a ser editor.",
     "sharedBy": "Compartida por {email}",
+    "sharedWithOthers": "Compartida con otros",
     "errorEmail": "Introduce un correo válido.",
     "errorSelf": "No puedes invitarte a ti mismo.",
     "errorMember": "Esta persona ya es miembro.",

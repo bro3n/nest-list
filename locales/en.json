@@ -41,6 +41,7 @@
     "transferTitle": "Transfer ownership",
     "transferMessage": "Transfer ownership to {email}? You will become an editor.",
     "sharedBy": "Shared by {email}",
+    "sharedWithOthers": "Shared with others",
     "errorEmail": "Please enter a valid email.",
     "errorSelf": "You can't invite yourself.",
     "errorMember": "This person is already a member.",

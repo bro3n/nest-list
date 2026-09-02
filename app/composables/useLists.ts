@@ -14,11 +14,13 @@ export interface NestList {
   tags: string[];
   createdAt: string;
   updatedAt: string;
-  // Present on lists loaded from the server: my role, the owner's email, and the
-  // change counter used to detect other members' edits while polling.
+  // Present on lists loaded from the server: my role, the owner's email, the
+  // change counter used to detect other members' edits while polling, and whether
+  // the list is shared (has another member or a pending invitation).
   role?: ListRole;
   ownerEmail?: string;
   revision?: number;
+  shared?: boolean;
 }
 
 type ListPatch = Partial<Pick<NestList, "title" | "items" | "tags">> & {
