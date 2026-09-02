@@ -56,6 +56,10 @@ const tags = ref<string[]>([...(initial?.tags ?? [])]);
 const lastIndex = computed(() => items.value.length - 1);
 const realItems = () => items.value.filter((item) => item.text.trim());
 
+// The trailing empty "add" row exists only when the user can edit. For a viewer
+// there is no add row, so every row is a real item (and keeps its checkbox).
+const isAddRow = (index: number) => canEdit.value && index === lastIndex.value;
+
 // Keep exactly one empty row at the end: typing in it turns it into a real item
 // and a fresh empty row is appended, so there is no explicit "add" button.
 const ensureTrailingEmpty = () => {
@@ -236,7 +240,7 @@ const mergeRemote = (data: RemoteList) => {
   applyingRemote.value = true;
   title.value = data.title;
   items.value = data.items.map((it) => ({ ...it }));
-  ensureTrailingEmpty();
+  if (canEdit.value) ensureTrailingEmpty();
   tags.value = [...data.tags];
   applyRemote(data.id, {
     title: data.title,
@@ -435,10 +439,10 @@ const onLeave = async () => {
             :key="item.id"
             :data-id="item.id"
             class="flex items-center gap-2"
-            :class="index < lastIndex ? 'drag-item' : 'drag-empty'"
+            :class="isAddRow(index) ? 'drag-empty' : 'drag-item'"
           >
             <UButton
-              v-if="index < lastIndex && canEdit"
+              v-if="canEdit && !isAddRow(index)"
               icon="i-heroicons-x-mark"
               color="neutral"
               variant="ghost"
@@ -447,26 +451,24 @@ const onLeave = async () => {
             />
             <UInput
               v-model="item.text"
-              :placeholder="
-                index === lastIndex ? $t('list.itemPlaceholder') : $t('list.itemRequired')
-              "
+              :placeholder="isAddRow(index) ? $t('list.itemPlaceholder') : $t('list.itemRequired')"
               :readonly="!canEdit"
-              :color="index < lastIndex && !item.text.trim() ? 'error' : undefined"
-              :highlight="index < lastIndex && !item.text.trim()"
+              :color="!isAddRow(index) && !item.text.trim() ? 'error' : undefined"
+              :highlight="!isAddRow(index) && !item.text.trim()"
               class="flex-1"
               :ui="{ base: item.checked ? 'line-through text-slate-400 dark:text-slate-500' : '' }"
               @focus="editingField = item.id"
               @blur="editingField = null"
             />
             <span
-              v-if="index < lastIndex && dragMode"
+              v-if="dragMode && !isAddRow(index)"
               class="drag-handle flex cursor-grab touch-none text-slate-400 active:cursor-grabbing"
               :aria-label="$t('list.reorder')"
             >
               <UIcon name="i-heroicons-bars-2" class="size-5" />
             </span>
             <UCheckbox
-              v-show="index < lastIndex && !dragMode"
+              v-show="!isAddRow(index) && !dragMode"
               v-model="item.checked"
               :disabled="!canEdit"
               size="xl"
