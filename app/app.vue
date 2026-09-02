@@ -127,7 +127,9 @@ useHead({
     </main>
 
     <footer class="mt-auto border-t border-slate-400 dark:border-slate-800">
-      <div class="mx-auto w-full max-w-5xl px-4 py-4 text-center text-sm text-slate-500">
+      <div
+        class="mx-auto w-full max-w-5xl px-4 py-2.5 text-center text-xs text-slate-500 sm:py-4 sm:text-sm"
+      >
         {{ $t("footer.copyright", { year }) }}
       </div>
     </footer>

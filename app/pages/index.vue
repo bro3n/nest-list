@@ -83,10 +83,10 @@ const visibleLists = computed(() =>
 
     <UButton
       icon="i-heroicons-plus"
-      size="xl"
+      size="lg"
       :aria-label="$t('lists.add')"
-      :ui="{ leadingIcon: 'size-10' }"
-      class="fixed right-6 bottom-20 z-40 h-20 w-20 justify-center rounded-full shadow-lg sm:hidden"
+      :ui="{ leadingIcon: 'size-6' }"
+      class="fixed right-6 bottom-20 z-40 h-14 w-14 justify-center rounded-full shadow-lg sm:hidden"
       @click="add"
     />
   </div>
