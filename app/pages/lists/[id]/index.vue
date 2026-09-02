@@ -301,6 +301,18 @@ const formatDate = (iso: string) =>
 const showDeleteConfirm = ref(false);
 const showShare = ref(false);
 
+// Title + tags live in a modal to keep the items front and center. A brand-new
+// list opens it straight away so it gets named first. Edits apply live (optimistic),
+// so the footer just closes — committing any pending title on the way out.
+const showEdit = ref(isNew);
+const openEdit = () => {
+  if (canEdit.value) showEdit.value = true;
+};
+const closeEdit = () => {
+  commitTitle();
+  showEdit.value = false;
+};
+
 const onDelete = () => {
   if (listId.value) removeList(listId.value);
   router.push("/");
@@ -319,6 +331,18 @@ const onLeave = async () => {
 
 <template>
   <div class="w-full py-8">
+    <div v-if="!missing" class="mb-4 flex flex-col gap-2">
+      <h1
+        class="text-center text-2xl font-bold wrap-break-word"
+        :class="{ 'text-slate-400 dark:text-slate-500': !title.trim() }"
+      >
+        {{ title.trim() || $t("list.untitled") }}
+      </h1>
+      <div v-if="tags.length" class="flex flex-wrap justify-center gap-2">
+        <TagChip v-for="tag in tags" :key="tag" :tag="tag" />
+      </div>
+    </div>
+
     <div class="mb-6 flex items-center justify-between gap-4">
       <UButton
         icon="i-heroicons-arrow-left"
@@ -338,6 +362,16 @@ const onLeave = async () => {
           :ui="{ base: 'data-[state=unchecked]:bg-blue-500' }"
           :aria-label="$t('list.dragMode')"
         />
+        <UButton
+          v-if="canEdit"
+          icon="i-heroicons-pencil-square"
+          color="neutral"
+          variant="ghost"
+          :aria-label="$t('list.editDetails')"
+          @click="openEdit"
+        >
+          <span class="hidden sm:inline">{{ $t("list.edit") }}</span>
+        </UButton>
         <UButton
           v-if="listId && canEdit"
           icon="i-heroicons-archive-box"
@@ -397,18 +431,6 @@ const onLeave = async () => {
       <p v-if="list && !isOwner" class="text-sm text-slate-500 dark:text-slate-400">
         {{ $t("share.sharedBy", { email: list.ownerEmail }) }} · {{ $t(`share.role.${myRole}`) }}
       </p>
-
-      <UFormField :label="$t('list.titleLabel')" :error="displayedTitleError || undefined">
-        <UInput
-          v-model="title"
-          :placeholder="$t('list.untitled')"
-          :readonly="!canEdit"
-          class="w-full"
-          @focus="editingField = 'title'"
-          @blur="onTitleBlur"
-          @keyup.enter="commitTitle"
-        />
-      </UFormField>
 
       <UFormField :label="$t('list.itemsLabel')">
         <div ref="listEl" class="flex flex-col gap-2">
@@ -475,34 +497,6 @@ const onLeave = async () => {
           />
         </div>
       </UFormField>
-
-      <UFormField :label="$t('list.tagsLabel')">
-        <UInputMenu
-          v-if="canEdit"
-          v-model="tags"
-          v-model:search-term="tagSearch"
-          :items="tagItems"
-          multiple
-          create-item
-          :placeholder="$t('list.tagsPlaceholder')"
-          class="w-full"
-          @create="onCreateTag"
-        />
-        <div v-else-if="tags.length" class="flex flex-wrap gap-2">
-          <TagChip v-for="tag in tags" :key="tag" :tag="tag" />
-        </div>
-      </UFormField>
-
-      <dl v-if="list" class="flex flex-col gap-1 text-sm text-slate-500 dark:text-slate-400">
-        <div class="flex gap-2">
-          <dt>{{ $t("list.createdAt") }}</dt>
-          <dd>{{ formatDate(list.createdAt) }}</dd>
-        </div>
-        <div class="flex gap-2">
-          <dt>{{ $t("list.updatedAt") }}</dt>
-          <dd>{{ formatDate(list.updatedAt) }}</dd>
-        </div>
-      </dl>
     </div>
 
     <UModal v-model:open="showDeleteConfirm" :title="$t('list.deleteConfirmTitle')">
@@ -520,6 +514,53 @@ const onLeave = async () => {
             @click="showDeleteConfirm = false"
           />
           <UButton color="error" :label="$t('list.delete')" @click="onDelete" />
+        </div>
+      </template>
+    </UModal>
+
+    <UModal v-model:open="showEdit" :title="$t('list.editDetails')">
+      <template #body>
+        <div class="flex flex-col gap-4">
+          <UFormField :label="$t('list.titleLabel')" :error="displayedTitleError || undefined">
+            <UInput
+              v-model="title"
+              :placeholder="$t('list.untitled')"
+              autofocus
+              class="w-full"
+              @focus="editingField = 'title'"
+              @blur="onTitleBlur"
+              @keyup.enter="commitTitle"
+            />
+          </UFormField>
+
+          <UFormField :label="$t('list.tagsLabel')">
+            <UInputMenu
+              v-model="tags"
+              v-model:search-term="tagSearch"
+              :items="tagItems"
+              multiple
+              create-item
+              :placeholder="$t('list.tagsPlaceholder')"
+              class="w-full"
+              @create="onCreateTag"
+            />
+          </UFormField>
+
+          <dl v-if="list" class="flex flex-col gap-1 text-sm text-slate-500 dark:text-slate-400">
+            <div class="flex gap-2">
+              <dt>{{ $t("list.createdAt") }}</dt>
+              <dd>{{ formatDate(list.createdAt) }}</dd>
+            </div>
+            <div class="flex gap-2">
+              <dt>{{ $t("list.updatedAt") }}</dt>
+              <dd>{{ formatDate(list.updatedAt) }}</dd>
+            </div>
+          </dl>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex w-full justify-end">
+          <UButton :label="$t('common.done')" @click="closeEdit" />
         </div>
       </template>
     </UModal>

@@ -62,7 +62,7 @@
   "sync": {
     "paused": "Sync paused — your changes are saved and will be sent automatically."
   },
-  "common": { "darkMode": "Dark mode", "lightMode": "Light mode", "cancel": "Cancel" },
+  "common": { "darkMode": "Dark mode", "lightMode": "Light mode", "cancel": "Cancel", "done": "Done" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {
     "heading": "Deleted items",
@@ -89,6 +89,8 @@
     "delete": "Delete",
     "notFound": "List not found.",
     "titleLabel": "Title",
+    "editDetails": "Edit details",
+    "edit": "Edit",
     "titleRequired": "Title is required.",
     "titleDuplicate": "This name already exists.",
     "deleteConfirmTitle": "Delete list",

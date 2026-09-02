@@ -62,7 +62,7 @@
   "sync": {
     "paused": "同步已暂停 — 你的修改已保存，将自动重新发送。"
   },
-  "common": { "darkMode": "深色模式", "lightMode": "浅色模式", "cancel": "取消" },
+  "common": { "darkMode": "深色模式", "lightMode": "浅色模式", "cancel": "取消", "done": "完成" },
   "footer": { "copyright": "© {year} Nest List" },
   "trash": {
     "heading": "已删除的项目",
@@ -89,6 +89,8 @@
     "delete": "删除",
     "notFound": "未找到清单。",
     "titleLabel": "标题",
+    "editDetails": "编辑详情",
+    "edit": "编辑",
     "titleRequired": "标题为必填项。",
     "titleDuplicate": "该名称已存在。",
     "deleteConfirmTitle": "删除清单",
