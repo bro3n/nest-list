@@ -94,13 +94,6 @@ const checkAll = () => {
 // Drag-and-drop reordering (touch + mouse) via SortableJS.
 // Off by default: rows show checkboxes; toggling on shows drag handles instead.
 const dragMode = ref(false);
-// Switch is driven by check mode so its lit (colored) state is the default one.
-const checkMode = computed({
-  get: () => !dragMode.value,
-  set: (value) => {
-    dragMode.value = !value;
-  },
-});
 const listEl = ref<HTMLElement | null>(null);
 let sortable: Sortable | null = null;
 
@@ -374,14 +367,6 @@ const onLeave = async () => {
         <span class="hidden sm:inline">{{ $t("list.back") }}</span>
       </UButton>
       <div class="flex items-center gap-2 sm:gap-3">
-        <USwitch
-          v-if="canEdit"
-          v-model="checkMode"
-          checked-icon="i-heroicons-check"
-          unchecked-icon="i-heroicons-arrows-up-down"
-          :ui="{ base: 'data-[state=unchecked]:bg-blue-500' }"
-          :aria-label="$t('list.dragMode')"
-        />
         <UButton
           v-if="canEdit"
           icon="i-heroicons-pencil-square"
@@ -488,6 +473,7 @@ const onLeave = async () => {
 
         <div v-if="canEdit" class="mt-3 flex flex-wrap gap-2">
           <UButton
+            v-if="!dragMode"
             icon="i-heroicons-check-circle"
             color="info"
             variant="soft"
@@ -496,12 +482,20 @@ const onLeave = async () => {
             @click="checkAll"
           />
           <UButton
+            v-if="!dragMode"
             icon="i-heroicons-trash"
             color="warning"
             variant="soft"
             :disabled="!hasChecked"
             :label="$t('list.clearChecked')"
             @click="clearChecked"
+          />
+          <UButton
+            :icon="dragMode ? 'i-heroicons-check' : 'i-heroicons-arrows-up-down'"
+            color="neutral"
+            :variant="dragMode ? 'solid' : 'soft'"
+            :label="dragMode ? $t('common.done') : $t('list.reorderMode')"
+            @click="dragMode = !dragMode"
           />
         </div>
       </UFormField>

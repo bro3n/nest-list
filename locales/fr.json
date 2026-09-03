@@ -104,6 +104,7 @@
     "addItem": "Ajouter un élément",
     "removeItem": "Supprimer l'élément",
     "reorder": "Déplacer l'élément",
+    "reorderMode": "Réorganiser",
     "dragMode": "Réorganiser les éléments",
     "checkAll": "Tout cocher",
     "clearChecked": "Nettoyer les cochés",

@@ -104,6 +104,7 @@
     "addItem": "添加项目",
     "removeItem": "删除项目",
     "reorder": "移动项目",
+    "reorderMode": "重新排序",
     "dragMode": "重新排序项目",
     "checkAll": "全部勾选",
     "clearChecked": "清除已勾选",

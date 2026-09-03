@@ -104,6 +104,7 @@
     "addItem": "Add item",
     "removeItem": "Remove item",
     "reorder": "Move item",
+    "reorderMode": "Reorder",
     "dragMode": "Reorder items",
     "checkAll": "Check all",
     "clearChecked": "Clear checked",
