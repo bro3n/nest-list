@@ -319,6 +319,15 @@ const closeEdit = () => {
   showEdit.value = false;
 };
 
+// Dismissing the create modal (X / backdrop) without naming the list must not
+// strand the user on an untitled draft — go back instead of creating nothing.
+watch(showEdit, (isOpen) => {
+  if (!isOpen && isNew && listId.value === null) {
+    if (import.meta.client && window.history.length > 1) router.back();
+    else router.push("/");
+  }
+});
+
 // Delete lives inside the edit modal (owner only): close it, then confirm.
 const onEditDelete = () => {
   showEdit.value = false;
