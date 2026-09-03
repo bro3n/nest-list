@@ -37,6 +37,8 @@
     "remove": "Quitar",
     "revoke": "Cancelar invitación",
     "leave": "Salir",
+    "leaveConfirmTitle": "Salir de la lista",
+    "leaveConfirmMessage": "¿Salir de esta lista? Perderás el acceso (podrás ser invitado de nuevo).",
     "makeOwner": "Hacer propietario",
     "transferTitle": "Transferir propiedad",
     "transferMessage": "¿Transferir la propiedad a {email}? Pasarás a ser editor.",

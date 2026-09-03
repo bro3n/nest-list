@@ -37,6 +37,8 @@
     "remove": "移除",
     "revoke": "取消邀请",
     "leave": "退出",
+    "leaveConfirmTitle": "退出清单",
+    "leaveConfirmMessage": "退出此清单？你将失去访问权限（可被重新邀请）。",
     "makeOwner": "设为所有者",
     "transferTitle": "转让所有权",
     "transferMessage": "将所有权转让给 {email}？你将成为编辑者。",

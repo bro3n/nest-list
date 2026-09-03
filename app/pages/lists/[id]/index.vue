@@ -304,6 +304,7 @@ const formatDate = (iso: string) =>
 
 const showDeleteConfirm = ref(false);
 const showShare = ref(false);
+const showLeaveConfirm = ref(false);
 
 // Title + tags live in a modal to keep the items front and center. A brand-new
 // list opens it straight away so it gets named first. Edits apply live (optimistic),
@@ -329,6 +330,7 @@ const onDelete = () => {
 };
 
 const onLeave = async () => {
+  showLeaveConfirm.value = false;
   if (!listId.value || !user.value) return;
   try {
     await leave(listId.value, user.value.id);
@@ -408,7 +410,7 @@ const onLeave = async () => {
           color="neutral"
           variant="ghost"
           :aria-label="$t('share.leave')"
-          @click="onLeave"
+          @click="showLeaveConfirm = true"
         >
           <span class="hidden sm:inline">{{ $t("share.leave") }}</span>
         </UButton>
@@ -512,6 +514,25 @@ const onLeave = async () => {
             @click="showDeleteConfirm = false"
           />
           <UButton color="error" :label="$t('list.delete')" @click="onDelete" />
+        </div>
+      </template>
+    </UModal>
+
+    <UModal v-model:open="showLeaveConfirm" :title="$t('share.leaveConfirmTitle')">
+      <template #body>
+        <p class="text-sm text-slate-600 dark:text-slate-300">
+          {{ $t("share.leaveConfirmMessage") }}
+        </p>
+      </template>
+      <template #footer>
+        <div class="flex w-full justify-end gap-2">
+          <UButton
+            color="neutral"
+            variant="ghost"
+            :label="$t('common.cancel')"
+            @click="showLeaveConfirm = false"
+          />
+          <UButton color="error" :label="$t('share.leave')" @click="onLeave" />
         </div>
       </template>
     </UModal>
