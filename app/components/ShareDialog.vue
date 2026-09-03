@@ -146,9 +146,13 @@ const onConfirmTransfer = async () => {
         <!-- Members -->
         <div v-if="members.length" class="flex flex-col gap-2">
           <p class="text-sm font-medium">{{ $t("share.members") }}</p>
-          <div v-for="m in members" :key="m.userId" class="flex items-center justify-between gap-2">
-            <span class="min-w-0 flex-1 truncate text-sm">{{ m.email }}</span>
-            <div class="flex shrink-0 items-center gap-1">
+          <div
+            v-for="m in members"
+            :key="m.userId"
+            class="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-2"
+          >
+            <span class="min-w-0 truncate text-sm sm:flex-1">{{ m.email }}</span>
+            <div class="flex flex-wrap items-center gap-1">
               <UButton
                 size="xs"
                 color="neutral"
@@ -168,7 +172,7 @@ const onConfirmTransfer = async () => {
                 icon="i-heroicons-arrow-up-circle"
                 color="neutral"
                 variant="ghost"
-                :aria-label="$t('share.makeOwner')"
+                :label="$t('share.makeOwner')"
                 @click="onMakeOwner(m)"
               />
               <UButton
@@ -176,7 +180,7 @@ const onConfirmTransfer = async () => {
                 icon="i-heroicons-x-mark"
                 color="error"
                 variant="ghost"
-                :aria-label="$t('share.remove')"
+                :label="$t('share.remove')"
                 @click="onRemove(m.userId)"
               />
             </div>
@@ -189,9 +193,9 @@ const onConfirmTransfer = async () => {
           <div
             v-for="inv in invitations"
             :key="inv.id"
-            class="flex items-center justify-between gap-2"
+            class="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-2"
           >
-            <span class="min-w-0 flex-1 truncate text-sm text-slate-500 dark:text-slate-400">
+            <span class="min-w-0 truncate text-sm text-slate-500 sm:flex-1 dark:text-slate-400">
               {{ inv.email }} · {{ $t(`share.role.${inv.role}`) }}
             </span>
             <UButton
@@ -199,7 +203,8 @@ const onConfirmTransfer = async () => {
               icon="i-heroicons-x-mark"
               color="neutral"
               variant="ghost"
-              :aria-label="$t('share.revoke')"
+              class="self-start sm:self-auto"
+              :label="$t('share.revoke')"
               @click="onRevoke(inv.id)"
             />
           </div>
