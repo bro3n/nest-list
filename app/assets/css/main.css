@@ -16,6 +16,13 @@ html.dark {
   --ui-border-accented: var(--ui-color-neutral-400);
 }
 
+/* Hand cursor on every enabled button (Nuxt UI leaves the default arrow on
+   <button> elements; links already show it). Higher specificity than the
+   `cursor-default` utility, so it wins; disabled buttons keep their cursor. */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 /* Per-tag colors: hue is provided inline via the --tag-h custom property.
    Fixed saturation/lightness keep every tag readable in light and dark. */
 .tag-chip {
