@@ -310,11 +310,19 @@ const showLeaveConfirm = ref(false);
 // list opens it straight away so it gets named first. Edits apply live (optimistic),
 // so the footer just closes — committing any pending title on the way out.
 const showEdit = ref(isNew);
+// The modal doubles as "add a list" (create) and "edit details". The mode is
+// captured when it opens so labels/dates don't flip mid-click while a new list
+// is being created (which would shift the layout and steal the button click).
+const editMode = ref(false);
 const openEdit = () => {
-  if (canEdit.value) showEdit.value = true;
+  if (!canEdit.value) return;
+  editMode.value = listId.value !== null;
+  showEdit.value = true;
 };
 const closeEdit = () => {
   commitTitle();
+  // Creating with an invalid title: keep the modal open so the error shows.
+  if (!editMode.value && listId.value === null) return;
   showEdit.value = false;
 };
 
@@ -537,7 +545,10 @@ const onLeave = async () => {
       </template>
     </UModal>
 
-    <UModal v-model:open="showEdit" :title="$t('list.editDetails')">
+    <UModal
+      v-model:open="showEdit"
+      :title="editMode ? $t('list.editDetails') : $t('list.addTitle')"
+    >
       <template #body>
         <div class="flex flex-col gap-4">
           <UFormField :label="$t('list.titleLabel')" :error="displayedTitleError || undefined">
@@ -565,7 +576,10 @@ const onLeave = async () => {
             />
           </UFormField>
 
-          <dl v-if="list" class="flex flex-col gap-1 text-sm text-slate-500 dark:text-slate-400">
+          <dl
+            v-if="list && editMode"
+            class="flex flex-col gap-1 text-sm text-slate-500 dark:text-slate-400"
+          >
             <div class="flex gap-2">
               <dt>{{ $t("list.createdAt") }}</dt>
               <dd>{{ formatDate(list.createdAt) }}</dd>
@@ -580,14 +594,18 @@ const onLeave = async () => {
       <template #footer>
         <div class="flex w-full items-center justify-between gap-2">
           <UButton
-            v-if="listId && isOwner"
+            v-if="listId && isOwner && editMode"
             icon="i-heroicons-trash"
             color="error"
             variant="ghost"
             :label="$t('list.delete')"
             @click="onEditDelete"
           />
-          <UButton class="ms-auto" :label="$t('common.done')" @click="closeEdit" />
+          <UButton
+            class="ms-auto"
+            :label="editMode ? $t('common.done') : $t('lists.add')"
+            @click="closeEdit"
+          />
         </div>
       </template>
     </UModal>

@@ -92,6 +92,7 @@
     "notFound": "List not found.",
     "titleLabel": "Title",
     "editDetails": "Edit details",
+    "addTitle": "Add a list",
     "edit": "Edit",
     "titleRequired": "Title is required.",
     "titleDuplicate": "This name already exists.",

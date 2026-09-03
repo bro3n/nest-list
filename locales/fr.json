@@ -92,6 +92,7 @@
     "notFound": "Liste introuvable.",
     "titleLabel": "Titre",
     "editDetails": "Modifier les détails",
+    "addTitle": "Ajouter une liste",
     "edit": "Modifier",
     "titleRequired": "Le titre est obligatoire.",
     "titleDuplicate": "Ce nom existe déjà.",
