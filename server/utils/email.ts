@@ -152,7 +152,8 @@ export const sendOtpEmail = async (
 ): Promise<void> => {
   if (import.meta.dev) console.info(`[auth] OTP for ${email}: ${code}`);
   const t = OTP[locale];
-  const origin = getRequestURL(event).origin;
+  // Behind Cloudflare's proxy the origin can come back as http; links must be https.
+  const origin = getRequestURL(event).origin.replace(/^http:/, "https:");
   await deliver(event, {
     to: email,
     subject: t.subject(code),
@@ -179,7 +180,7 @@ const INVITE: Record<Locale, InviteStrings> = {
     subject: (inv, list) => `${inv} shared "${list}" with you`,
     kicker: "Shared with you",
     heading: (inv) => `${inv} shared a list with you`,
-    role: (r) => (r === "editor" ? "Can edit" : "Can view"),
+    role: (r) => (r === "editor" ? "Editor" : "Viewer"),
     body: "Open Nest List to view it and start adding items together.",
     cta: "Open Nest List",
     signin:
@@ -190,7 +191,7 @@ const INVITE: Record<Locale, InviteStrings> = {
     subject: (inv, list) => `${inv} a partagé « ${list} » avec vous`,
     kicker: "Partagé avec vous",
     heading: (inv) => `${inv} a partagé une liste avec vous`,
-    role: (r) => (r === "editor" ? "Peut modifier" : "Lecture seule"),
+    role: (r) => (r === "editor" ? "Éditeur" : "Lecteur"),
     body: "Ouvrez Nest List pour la voir et ajouter des éléments ensemble.",
     cta: "Ouvrir Nest List",
     signin:
@@ -201,7 +202,7 @@ const INVITE: Record<Locale, InviteStrings> = {
     subject: (inv, list) => `${inv} compartió "${list}" contigo`,
     kicker: "Compartido contigo",
     heading: (inv) => `${inv} compartió una lista contigo`,
-    role: (r) => (r === "editor" ? "Puede editar" : "Solo lectura"),
+    role: (r) => (r === "editor" ? "Editor" : "Lector"),
     body: "Abre Nest List para verla y empezar a añadir elementos juntos.",
     cta: "Abrir Nest List",
     signin:
@@ -212,7 +213,7 @@ const INVITE: Record<Locale, InviteStrings> = {
     subject: (inv, list) => `${inv} 与你共享了“${list}”`,
     kicker: "与你共享",
     heading: (inv) => `${inv} 与你共享了一个清单`,
-    role: (r) => (r === "editor" ? "可编辑" : "仅查看"),
+    role: (r) => (r === "editor" ? "编辑者" : "查看者"),
     body: "打开 Nest List 查看，并一起添加项目。",
     cta: "打开 Nest List",
     signin: "使用此邮箱地址登录即可接受邀请。还没有账户？登录时会自动创建。",
@@ -263,14 +264,16 @@ export const sendShareInviteEmail = async (
   locale: Locale,
 ): Promise<void> => {
   const t = INVITE[locale];
+  // Behind Cloudflare's proxy the origin can come back as http; links must be https.
+  const url = appUrl.replace(/^http:/, "https:");
   await deliver(event, {
     to: email,
     subject: t.subject(inviterEmail, listTitle),
     html: shell(
-      appUrl,
-      inviteInner(t, escapeHtml(inviterEmail), escapeHtml(listTitle), role, appUrl),
+      url,
+      inviteInner(t, escapeHtml(inviterEmail), escapeHtml(listTitle), role, url),
       `${brandFooter}<br>${t.footerNote}`,
     ),
-    text: inviteText(t, inviterEmail, listTitle, role, appUrl),
+    text: inviteText(t, inviterEmail, listTitle, role, url),
   });
 };
