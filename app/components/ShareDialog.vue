@@ -4,7 +4,7 @@ import type { ShareMember, ShareInvitation } from "~/composables/useSharing";
 const props = defineProps<{ listId: string }>();
 const open = defineModel<boolean>("open", { required: true });
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const { getShares, invite, setRole, removeMember, revokeInvite, transfer } = useSharing();
 const { refresh: refreshLists } = useLists();
 
@@ -58,7 +58,7 @@ const onInvite = async () => {
   if (!email.value.trim()) return;
   loading.value = true;
   try {
-    await invite(props.listId, email.value.trim(), role.value);
+    await invite(props.listId, email.value.trim(), role.value, locale.value);
     email.value = "";
     await refresh();
   } catch (e) {

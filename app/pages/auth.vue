@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const { requestCode, verify } = useAuth();
@@ -42,7 +42,7 @@ const onSendCode = async () => {
   code.value = "";
   lastSubmitted = "";
   try {
-    await requestCode(email.value.trim());
+    await requestCode(email.value.trim(), locale.value);
     step.value = "code";
   } catch (e) {
     error.value = messageFor(e);

@@ -20,8 +20,9 @@ export const useAuth = () => {
     }
   };
 
-  const requestCode = (email: string) =>
-    $fetch("/api/auth/request-code", { method: "POST", body: { email } });
+  // `locale` is passed so the sign-in email is sent in the user's app language.
+  const requestCode = (email: string, locale: string) =>
+    $fetch("/api/auth/request-code", { method: "POST", body: { email, locale } });
 
   const verify = async (email: string, code: string): Promise<void> => {
     const { user: me } = await $fetch<{ user: AuthUser }>("/api/auth/verify", {

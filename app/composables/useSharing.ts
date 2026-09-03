@@ -19,8 +19,13 @@ export const useSharing = () => {
       `/api/lists/${listId}/shares`,
     );
 
-  const invite = (listId: string, email: string, role: Exclude<ListRole, "owner">) =>
-    $fetch(`/api/lists/${listId}/shares`, { method: "POST", body: { email, role } });
+  // `locale` is passed so the invitation email is sent in the inviter's app language.
+  const invite = (
+    listId: string,
+    email: string,
+    role: Exclude<ListRole, "owner">,
+    locale: string,
+  ) => $fetch(`/api/lists/${listId}/shares`, { method: "POST", body: { email, role, locale } });
 
   const setRole = (listId: string, userId: string, role: Exclude<ListRole, "owner">) =>
     $fetch(`/api/lists/${listId}/shares/${userId}`, { method: "PATCH", body: { role } });

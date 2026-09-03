@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const listId = getRouterParam(event, "id") as string;
   await requireListRole(event, listId, user.id, ["owner"]);
 
-  const body = await readBody<{ email?: string; role?: string }>(event);
+  const body = await readBody<{ email?: string; role?: string; locale?: string }>(event);
   const email = normalizeEmail(body?.email);
   const role = body?.role;
   if (!email) throw createError({ statusCode: 400, statusMessage: "invalid_email" });
@@ -49,6 +49,8 @@ export default defineEventHandler(async (event) => {
     list?.title ?? "a list",
     user.email,
     getRequestURL(event).origin,
+    role,
+    normalizeLocale(body?.locale),
   );
 
   return { ok: true };
