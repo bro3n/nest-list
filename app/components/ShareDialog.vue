@@ -144,29 +144,31 @@ const onConfirmTransfer = async () => {
         </form>
 
         <!-- Members -->
-        <div v-if="members.length" class="flex flex-col gap-2">
+        <div v-if="members.length" class="flex flex-col gap-3">
           <p class="text-sm font-medium">{{ $t("share.members") }}</p>
-          <div
-            v-for="m in members"
-            :key="m.userId"
-            class="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-2"
-          >
-            <span class="min-w-0 truncate text-sm sm:flex-1">{{ m.email }}</span>
-            <div class="flex flex-wrap items-center gap-1">
-              <UButton
-                size="xs"
-                color="neutral"
-                :variant="m.role === 'editor' ? 'solid' : 'soft'"
-                :label="$t('share.role.editor')"
-                @click="onSetRole(m.userId, 'editor')"
-              />
-              <UButton
-                size="xs"
-                color="neutral"
-                :variant="m.role === 'viewer' ? 'solid' : 'soft'"
-                :label="$t('share.role.viewer')"
-                @click="onSetRole(m.userId, 'viewer')"
-              />
+          <div v-for="m in members" :key="m.userId" class="flex flex-col gap-2">
+            <div
+              class="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-2"
+            >
+              <span class="min-w-0 truncate text-sm sm:flex-1">{{ m.email }}</span>
+              <div class="flex shrink-0 items-center gap-1">
+                <UButton
+                  size="xs"
+                  color="neutral"
+                  :variant="m.role === 'editor' ? 'solid' : 'soft'"
+                  :label="$t('share.role.editor')"
+                  @click="onSetRole(m.userId, 'editor')"
+                />
+                <UButton
+                  size="xs"
+                  color="neutral"
+                  :variant="m.role === 'viewer' ? 'solid' : 'soft'"
+                  :label="$t('share.role.viewer')"
+                  @click="onSetRole(m.userId, 'viewer')"
+                />
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1 sm:justify-end">
               <UButton
                 size="xs"
                 icon="i-heroicons-arrow-up-circle"
