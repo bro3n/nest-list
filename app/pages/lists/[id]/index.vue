@@ -458,7 +458,7 @@ const onLeave = async () => {
         {{ $t("share.sharedBy", { email: list.ownerEmail }) }} · {{ $t(`share.role.${myRole}`) }}
       </p>
 
-      <UFormField :label="$t('list.itemsLabel')">
+      <UFormField>
         <div ref="listEl" class="flex flex-col gap-2">
           <div
             v-for="(item, index) in items"
