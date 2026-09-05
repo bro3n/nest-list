@@ -70,6 +70,28 @@ const ensureTrailingEmpty = () => {
 };
 if (canEdit.value) ensureTrailingEmpty();
 
+// Enter commits the current item (when it has text) and jumps to the next row,
+// creating a fresh empty one if needed — so on mobile you can add items rapidly:
+// type, Enter, type, Enter. Without this the trailing row's key reads "Go" / does
+// nothing. IME composition (e.g. Chinese) is left to confirm on its own.
+const onItemEnter = (index: number, event: KeyboardEvent) => {
+  if (event.isComposing) return;
+  event.preventDefault();
+  if (!canEdit.value) return;
+  const item = items.value[index];
+  if (!item || !item.text.trim()) return;
+  ensureTrailingEmpty();
+  const nextInput = () =>
+    listEl.value
+      ?.querySelectorAll<HTMLElement>(".drag-item, .drag-empty")
+      ?.[index + 1]?.querySelector<HTMLInputElement>("input");
+  // Focus synchronously when the next row already exists (typing appended it), so
+  // the mobile keyboard stays open; otherwise fall back after the DOM updates.
+  const next = nextInput();
+  if (next) next.focus();
+  else nextTick(() => nextInput()?.focus());
+};
+
 const removeItem = (itemId: string) => {
   const item = items.value.find((i) => i.id === itemId);
   if (item && listId.value) recordDeleted([item], listId.value, title.value.trim());
@@ -460,9 +482,11 @@ const onLeave = async () => {
               :color="!isAddRow(index) && !item.text.trim() ? 'error' : undefined"
               :highlight="!isAddRow(index) && !item.text.trim()"
               class="flex-1"
+              enterkeyhint="next"
               :ui="{ base: item.checked ? 'line-through text-slate-400 dark:text-slate-500' : '' }"
               @focus="editingField = item.id"
               @blur="editingField = null"
+              @keydown.enter="onItemEnter(index, $event)"
             />
             <span
               v-if="dragMode && !isAddRow(index)"
