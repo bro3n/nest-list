@@ -68,4 +68,13 @@ button:not(:disabled) {
   .item-field input {
     font-size: 0.8rem;
   }
+  /* Tighter delete (x) button and row spacing so it doesn't outweigh the checkbox. */
+  .item-remove {
+    padding-left: 0.125rem;
+    padding-right: 0.125rem;
+  }
+  .drag-item,
+  .drag-empty {
+    gap: 0.375rem;
+  }
 }

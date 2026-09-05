@@ -472,6 +472,7 @@ const onLeave = async () => {
               icon="i-heroicons-x-mark"
               color="neutral"
               variant="ghost"
+              class="item-remove"
               :aria-label="$t('list.removeItem')"
               @click="removeItem(item.id)"
             />
