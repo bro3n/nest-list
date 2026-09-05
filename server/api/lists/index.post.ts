@@ -22,6 +22,17 @@ export default defineEventHandler(async (event) => {
   const title = (body?.title ?? "").trim();
   if (!title) throw createError({ statusCode: 400, statusMessage: "title_required" });
 
+  const invalid = validateListInput(body ?? {});
+  if (invalid) throw createError({ statusCode: 400, statusMessage: invalid });
+
+  const owned = await db
+    .prepare("SELECT COUNT(*) AS n FROM lists WHERE owner_id = ?")
+    .bind(user.id)
+    .first<{ n: number }>();
+  if ((owned?.n ?? 0) >= LIMITS.lists) {
+    throw createError({ statusCode: 400, statusMessage: "too_many_lists" });
+  }
+
   const dup = await db
     .prepare("SELECT 1 FROM lists WHERE owner_id = ? AND lower(title) = lower(?)")
     .bind(user.id, title)

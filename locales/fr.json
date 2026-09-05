@@ -79,7 +79,8 @@
     "add": "Ajouter",
     "empty": "Aucune liste pour l'instant.",
     "allTags": "Tous",
-    "noneForTag": "Aucune liste pour ce tag."
+    "noneForTag": "Aucune liste pour ce tag.",
+    "limitReached": "Limite de 200 listes atteinte."
   },
   "list": {
     "untitled": "Sans titre",

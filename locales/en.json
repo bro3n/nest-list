@@ -79,7 +79,8 @@
     "add": "Add",
     "empty": "No lists yet.",
     "allTags": "All",
-    "noneForTag": "No lists for this tag."
+    "noneForTag": "No lists for this tag.",
+    "limitReached": "You've reached the limit of 200 lists."
   },
   "list": {
     "untitled": "Untitled",

@@ -79,7 +79,8 @@
     "add": "添加",
     "empty": "暂无清单。",
     "allTags": "全部",
-    "noneForTag": "该标签下暂无清单。"
+    "noneForTag": "该标签下暂无清单。",
+    "limitReached": "已达到 200 个清单的上限。"
   },
   "list": {
     "untitled": "无标题",

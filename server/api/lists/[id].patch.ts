@@ -20,6 +20,9 @@ export default defineEventHandler(async (event) => {
   await requireListRole(event, id, user.id, ["owner", "editor"]);
 
   const body = await readBody<PatchBody>(event);
+  const invalid = validateListInput(body ?? {});
+  if (invalid) throw createError({ statusCode: 400, statusMessage: invalid });
+
   const sets: string[] = [];
   const binds: unknown[] = [];
   if (typeof body?.title === "string") {

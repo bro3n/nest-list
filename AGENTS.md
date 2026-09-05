@@ -44,7 +44,7 @@ server/                  # Backend Nitro (déployé avec le front sur CF Pages)
 │   ├── trash/           # corbeille (index.get/post, [id].delete)
 │   └── settings/        # tag-colors (get/put)
 ├── utils/               # db, crypto, session, otp, rate-limit, email, validate (auto-import)
-└── database/migrations/ # 0001_init … 0005_list_revision (schéma D1)
+└── database/migrations/ # 0001_init … 0006_list_items_pk (schéma D1)
 locales/                 # fr.json, en.json, es.json, zh.json
 public/                  # manifest, sw.js, icônes, _redirects, _headers, robots.txt
 wrangler.toml            # binding D1 + config migrations ; .dev.vars = secrets locaux (git-ignoré)

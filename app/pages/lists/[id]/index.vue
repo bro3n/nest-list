@@ -6,6 +6,7 @@ const route = useRoute();
 const router = useRouter();
 const { t, locale } = useI18n();
 const {
+  lists,
   getList,
   titleExists,
   createList,
@@ -29,6 +30,20 @@ const initial = isNew ? undefined : getList(routeId);
 const listId = ref<string | null>(isNew ? null : initial ? routeId : null);
 // A non-"new" route pointing at an unknown id.
 const missing = !isNew && !initial;
+
+// Block creating beyond the per-user cap (the server enforces it too). Every "+"
+// entry point lands here, so one guard covers them all.
+const toast = useToast();
+const overListLimit = isNew && lists.value.filter((l) => l.role === "owner").length >= 200;
+onMounted(() => {
+  if (!overListLimit) return;
+  toast.add({
+    title: t("lists.limitReached"),
+    color: "warning",
+    icon: "i-heroicons-exclamation-triangle",
+  });
+  router.replace("/");
+});
 
 // My role on this list drives what the UI allows. A draft is always "owner".
 const myRole = computed(() => {
@@ -186,8 +201,10 @@ watch(tagSearch, (value) => {
 });
 
 const onCreateTag = (raw: string) => {
-  const normalized = raw.trim().toLowerCase().replace(/\s+/g, "");
-  if (normalized && !tags.value.includes(normalized)) tags.value = [...tags.value, normalized];
+  const normalized = raw.trim().toLowerCase().replace(/\s+/g, "").slice(0, 20);
+  if (normalized && tags.value.length < 10 && !tags.value.includes(normalized)) {
+    tags.value = [...tags.value, normalized];
+  }
   tagSearch.value = "";
 };
 
@@ -329,7 +346,7 @@ const showLeaveConfirm = ref(false);
 // Title + tags live in a modal to keep the items front and center. A brand-new
 // list opens it straight away so it gets named first. Edits apply live (optimistic),
 // so the footer just closes — committing any pending title on the way out.
-const showEdit = ref(isNew);
+const showEdit = ref(isNew && !overListLimit);
 // The modal doubles as "add a list" (create) and "edit details". The mode is
 // captured when it opens so labels/dates don't flip mid-click while a new list
 // is being created (which would shift the layout and steal the button click).
@@ -488,6 +505,7 @@ const onLeave = async () => {
               :color="!isAddRow(index) && !item.text.trim() ? 'error' : undefined"
               :highlight="!isAddRow(index) && !item.text.trim()"
               class="item-field flex-1"
+              :maxlength="100"
               enterkeyhint="next"
               :ui="{ base: item.checked ? 'line-through text-slate-400 dark:text-slate-500' : '' }"
               @focus="editingField = item.id"
@@ -590,6 +608,7 @@ const onLeave = async () => {
               :placeholder="$t('list.untitled')"
               autofocus
               class="w-full"
+              :maxlength="50"
               @focus="editingField = 'title'"
               @blur="onTitleBlur"
               @keyup.enter="commitTitle"
