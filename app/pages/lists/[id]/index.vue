@@ -481,7 +481,7 @@ const onLeave = async () => {
               :readonly="!canEdit"
               :color="!isAddRow(index) && !item.text.trim() ? 'error' : undefined"
               :highlight="!isAddRow(index) && !item.text.trim()"
-              class="flex-1"
+              class="item-field flex-1"
               enterkeyhint="next"
               :ui="{ base: item.checked ? 'line-through text-slate-400 dark:text-slate-500' : '' }"
               @focus="editingField = item.id"

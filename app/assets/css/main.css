@@ -61,3 +61,11 @@ button:not(:disabled) {
 .sortable-ghost {
   opacity: 0.4;
 }
+
+/* Phones: drop the checklist item text a notch (the whole UI is scaled up 125%),
+   so longer entries fit before they get truncated. Unchanged from sm upward. */
+@media (max-width: 639px) {
+  .item-field input {
+    font-size: 0.8rem;
+  }
+}
