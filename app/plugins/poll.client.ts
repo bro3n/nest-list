@@ -9,7 +9,8 @@ export default defineNuxtPlugin(() => {
     if (isAuthenticated.value && !document.hidden) invitations.load(true);
   };
 
-  setInterval(tick, 10000);
+  // 20s in the background (the tab-focus refresh keeps the badge feeling live).
+  setInterval(tick, 20000);
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) tick();
   });

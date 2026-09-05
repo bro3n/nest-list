@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Sortable from "sortablejs";
+import type Sortable from "sortablejs";
 import type { ChecklistItem } from "~/composables/useLists";
 
 const route = useRoute();
@@ -133,9 +133,14 @@ const applyDragOrder = () => {
   items.value = [...reordered, ...trailing];
 };
 
-const createSortable = () => {
+// SortableJS is loaded on demand (only when reordering) so it stays out of the
+// list page's initial bundle.
+const createSortable = async () => {
   if (sortable || !listEl.value) return;
-  sortable = Sortable.create(listEl.value, {
+  const SortableLib = (await import("sortablejs")).default;
+  // The user may have left drag mode (or the view) during the await.
+  if (!dragMode.value || sortable || !listEl.value) return;
+  sortable = SortableLib.create(listEl.value, {
     handle: ".drag-handle",
     draggable: ".drag-item",
     animation: 150,

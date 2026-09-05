@@ -87,7 +87,7 @@ ajoutée **simultanément aux 4 fichiers** `locales/{fr,en,es,zh}.json`.
   ce qui invalide le cache à chaque déploiement.
 - Le client décide de la mise à jour : `PwaUpdateBanner.vue` envoie `SKIP_WAITING` au SW puis recharge.
 - `pwa.client.ts` vérifie périodiquement (~30 s + au retour d'onglet) via `registration.update()` si un
-  nouveau build est déployé → déclenche la bannière. `poll.client.ts` rafraîchit les invitations (~10 s,
+  nouveau build est déployé → déclenche la bannière. `poll.client.ts` rafraîchit les invitations (~20 s,
   connecté + onglet visible) pour tenir le badge à jour.
 
 ## Backend & Auth
